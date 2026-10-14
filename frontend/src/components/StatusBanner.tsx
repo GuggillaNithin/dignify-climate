@@ -40,7 +40,7 @@ export const StatusBanner: React.FC<StatusBannerProps> = ({
           <div>
             <span className="font-semibold text-rose-200">Backend API Offline:</span>{' '}
             <span className="text-rose-100/90">
-              Cannot connect to <code className="font-mono bg-rose-900/60 px-1 py-0.5 rounded text-rose-200">{apiBaseUrl}</code>.
+              Cannot connect to Backend API. Try reconnecting and wait until backend connects.
             </span>
             <p className="text-xs text-rose-200/80 mt-1">
               Scientific integrity rule: All thresholds, Mann-Kendall statistics, and event counts are calculated server-side by deterministic Python routines. No simulated or synthetic observations will be rendered while disconnected.
