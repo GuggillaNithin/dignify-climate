@@ -10,6 +10,7 @@ import {
   Loader2,
   Calendar,
   Database,
+  TrendingUp,
 } from 'lucide-react';
 import type { PointCoordinate, AnalysisResponse } from '../types/api';
 import type { HazardType } from './DashboardShell';
@@ -25,6 +26,7 @@ interface LocationSummaryCardProps {
   onOpenAnalysisDrawer: () => void;
   onRunAnalysis: () => void;
   onOpenAIDrawer: () => void;
+  onOpenDeepAnalysis?: () => void;
 }
 
 export const LocationSummaryCard: React.FC<LocationSummaryCardProps> = ({
@@ -38,7 +40,10 @@ export const LocationSummaryCard: React.FC<LocationSummaryCardProps> = ({
   onOpenAnalysisDrawer,
   onRunAnalysis,
   onOpenAIDrawer,
+  onOpenDeepAnalysis,
 }) => {
+  const [isMinimized, setIsMinimized] = React.useState(false);
+
   const getHazardLabel = () => {
     if (selectedHazard === 'heatwave') return 'Heatwave';
     if (selectedHazard === 'drought') return 'Drought';
@@ -60,18 +65,47 @@ export const LocationSummaryCard: React.FC<LocationSummaryCardProps> = ({
         ).toFixed(1)
       : null;
 
+  if (isMinimized) {
+    return (
+      <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 z-20 pointer-events-auto">
+        <button
+          type="button"
+          onClick={() => setIsMinimized(false)}
+          className="bg-white/95 backdrop-blur-md px-3 py-2 rounded-2xl shadow-lg border border-slate-200/90 hover:bg-slate-50 transition flex items-center gap-2 text-xs font-semibold text-slate-800"
+          title="Expand Location Summary"
+        >
+          <MapPin className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+          <span className="truncate max-w-[140px]">{locationName || 'Selected Location'}</span>
+          <div className="w-1.5 h-1.5 rounded-full bg-teal-600 shrink-0" />
+          <span className="text-[11px] font-mono text-slate-500">{avgDays ? `${avgDays} d/yr` : getHazardLabel()}</span>
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-30 w-72 sm:w-84 md:w-96 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-xl border border-slate-200/90 overflow-hidden pointer-events-auto transition-all hover:shadow-2xl">
+    <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 z-20 w-72 sm:w-80 md:w-84 max-w-[calc(100vw-2rem)] bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200/90 overflow-hidden pointer-events-auto transition-all hover:shadow-2xl">
       {/* Card Header & Location Name */}
-      <div className="p-4 pb-3">
+      <div className="p-3.5 pb-2.5">
         <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
           <span className="flex items-center gap-1.5">
             <MapPin className="w-3 h-3 text-teal-600" />
             Selected Location
           </span>
-          <span className="font-mono text-[10px] text-slate-400">
-            {coordinates.latitude.toFixed(2)}°N, {coordinates.longitude.toFixed(2)}°E
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-[10px] text-slate-400">
+              {coordinates.latitude.toFixed(2)}°N, {coordinates.longitude.toFixed(2)}°E
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsMinimized(true)}
+              className="text-slate-400 hover:text-slate-600 text-xs px-1 hover:bg-slate-100 rounded"
+              title="Minimize card"
+              aria-label="Minimize card"
+            >
+              —
+            </button>
+          </div>
         </div>
 
         <h3 className="text-base font-bold text-slate-900 truncate" title={locationName}>
@@ -135,25 +169,37 @@ export const LocationSummaryCard: React.FC<LocationSummaryCardProps> = ({
       </div>
 
       {/* Card Action Footer */}
-      <div className="px-4 py-2.5 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-2">
+      <div className="px-3.5 py-2 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-1.5">
         <button
           type="button"
           onClick={onOpenAnalysisDrawer}
-          className="flex-1 py-1.5 px-3 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-800 transition flex items-center justify-center gap-1 shadow-xs"
+          className="flex-1 py-1.5 px-2.5 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-800 transition flex items-center justify-center gap-1 shadow-xs"
         >
           <BarChart3 className="w-3.5 h-3.5 text-teal-700" />
           <span>View Analysis</span>
           <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
         </button>
 
+        {onOpenDeepAnalysis && (
+          <button
+            type="button"
+            onClick={onOpenDeepAnalysis}
+            className="p-1.5 rounded-lg bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-800 transition flex items-center justify-center shrink-0 shadow-xs"
+            title="Open Deep Analysis Workspace"
+            aria-label="Open Deep Analysis Workspace"
+          >
+            <TrendingUp className="w-3.5 h-3.5 text-teal-700" />
+          </button>
+        )}
+
         <button
           type="button"
           onClick={onOpenAIDrawer}
-          className="p-1.5 rounded-lg bg-teal-50 hover:bg-teal-100 border border-teal-200 text-teal-800 transition flex items-center justify-center shrink-0 shadow-xs"
+          className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 transition flex items-center justify-center shrink-0 shadow-xs"
           title="Open AI Climate Assistant"
           aria-label="Open AI Assistant"
         >
-          <Sparkles className="w-4 h-4 text-teal-700" />
+          <Sparkles className="w-3.5 h-3.5 text-teal-700" />
         </button>
       </div>
     </div>

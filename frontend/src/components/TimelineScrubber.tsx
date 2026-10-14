@@ -6,6 +6,7 @@ import {
   Pause,
   RotateCcw,
   Calendar,
+  X,
 } from 'lucide-react';
 import type { RegionalAnnualMetric } from '../types/api';
 
@@ -16,6 +17,7 @@ interface TimelineScrubberProps {
   onYearSelect: (year: number) => void;
   annualSeries?: RegionalAnnualMetric[];
   hazardLabel?: string;
+  onClose?: () => void;
 }
 
 export const TimelineScrubber: React.FC<TimelineScrubberProps> = ({
@@ -25,6 +27,7 @@ export const TimelineScrubber: React.FC<TimelineScrubberProps> = ({
   onYearSelect,
   annualSeries = [],
   hazardLabel = 'Hazard',
+  onClose,
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -65,7 +68,7 @@ export const TimelineScrubber: React.FC<TimelineScrubberProps> = ({
   );
 
   return (
-    <div className="absolute top-3 sm:top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-auto transition-all max-w-[calc(100vw-2rem)]">
+    <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-20 pointer-events-auto transition-all max-w-[calc(100vw-2rem)]">
       <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200/90 overflow-hidden font-sans">
         {/* Header / Collapse Toggle Bar */}
         <div className="px-3.5 py-1.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between gap-4 text-xs">
@@ -116,6 +119,18 @@ export const TimelineScrubber: React.FC<TimelineScrubberProps> = ({
             >
               {isCollapsed ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
             </button>
+
+            {onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                className="p-1 rounded-md text-slate-400 hover:text-slate-800 hover:bg-slate-200/60 transition ml-0.5"
+                title="Hide timeline dock"
+                aria-label="Hide timeline dock"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
 

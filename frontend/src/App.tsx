@@ -4,11 +4,18 @@ import {
   ExternalLink,
   RefreshCw,
   Database,
-  Menu,
   BookOpen,
+  Map,
+  SlidersHorizontal,
+  TrendingUp,
+  Server,
+  Bot,
 } from 'lucide-react';
-import { DashboardShell, type DashboardShellRef } from './components/DashboardShell';
-import { NavigationRail, type NavigationRoute } from './components/NavigationRail';
+import {
+  DashboardShell,
+  type DashboardShellRef,
+  type WorkspaceMode,
+} from './components/DashboardShell';
 import { MethodologyView } from './components/MethodologyView';
 import { SystemInfoView } from './components/SystemInfoView';
 import { DataSourcesModal } from './components/DataSourcesModal';
@@ -22,11 +29,7 @@ export function App() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'methodology' | 'system'>('dashboard');
   const [isDataSourcesOpen, setIsDataSourcesOpen] = useState<boolean>(false);
-
-  // Responsive Navigation Rail state (60px collapsed by default, expandable to 240px)
-  const [isNavExpanded, setIsNavExpanded] = useState<boolean>(false);
-  const [isMobileNavOpen, setIsMobileNavOpen] = useState<boolean>(false);
-  const [activeNavRoute, setActiveNavRoute] = useState<NavigationRoute>('explore');
+  const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>('explore');
 
   // Ref to DashboardShell for drawer and layer triggers
   const dashboardRef = useRef<DashboardShellRef>(null);
@@ -51,60 +54,45 @@ export function App() {
     handleCheckHealth();
   }, [handleCheckHealth]);
 
-  // Handle route selection from left navigation rail
-  const handleNavSelect = (routeId: NavigationRoute) => {
-    setActiveNavRoute(routeId);
-
-    if (routeId === 'explore') {
-      setActiveTab('dashboard');
+  // Handle 3-Mode workspace switcher (Explore | Analyze | Deep Analysis)
+  const handleModeChange = (mode: WorkspaceMode) => {
+    setWorkspaceMode(mode);
+    setActiveTab('dashboard');
+    if (mode === 'explore') {
       dashboardRef.current?.closeDrawers();
-    } else if (routeId === 'analysis') {
-      setActiveTab('dashboard');
+      dashboardRef.current?.setWorkspaceMode('explore');
+    } else if (mode === 'analyze') {
       dashboardRef.current?.openAnalysisDrawer();
-    } else if (routeId === 'assistant') {
-      setActiveTab('dashboard');
-      dashboardRef.current?.openAIDrawer();
-    } else if (routeId === 'layers') {
-      setActiveTab('dashboard');
-      dashboardRef.current?.toggleBasemap();
-    } else if (routeId === 'reports') {
-      setActiveTab('dashboard');
-      dashboardRef.current?.openAnalysisDrawer();
-    } else if (routeId === 'methodology') {
-      setActiveTab('methodology');
-    } else if (routeId === 'system') {
-      setActiveTab('system');
+      dashboardRef.current?.setWorkspaceMode('analyze');
+    } else if (mode === 'deep-analysis') {
+      dashboardRef.current?.setWorkspaceMode('deep-analysis');
     }
   };
 
-  const handleToggleNavRail = () => {
-    // If mobile, toggle overlay drawer; if desktop, toggle expansion
-    if (window.innerWidth < 768) {
-      setIsMobileNavOpen((prev) => !prev);
-    } else {
-      setIsNavExpanded((prev) => !prev);
-    }
+  const handleOpenExplore = () => {
+    setActiveTab('dashboard');
+    setWorkspaceMode('explore');
+    dashboardRef.current?.closeDrawers();
+    dashboardRef.current?.setWorkspaceMode('explore');
+  };
+
+  const handleOpenAIDrawer = () => {
+    setActiveTab('dashboard');
+    dashboardRef.current?.openAIDrawer();
   };
 
   return (
     <div className="h-screen w-screen flex flex-col bg-slate-100 text-slate-800 font-sans overflow-hidden select-none">
       {/* 1. Compact Google Maps-Style Top Navigation Header */}
       <header className="h-14 bg-white border-b border-slate-200/90 px-3 sm:px-4 flex items-center justify-between shrink-0 z-40 shadow-xs">
-        {/* Left: Hamburger & Brand */}
+        {/* Left: Brand */}
         <div className="flex items-center gap-2.5 sm:gap-3">
-          <button
-            type="button"
-            onClick={handleToggleNavRail}
-            className="p-1.5 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition focus:outline-none focus:ring-2 focus:ring-teal-600"
-            title={isNavExpanded ? 'Collapse navigation rail' : 'Expand navigation rail'}
-            aria-label="Toggle navigation rail"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-
           <div
-            onClick={() => handleNavSelect('explore')}
+            onClick={handleOpenExplore}
             className="flex items-center gap-2.5 cursor-pointer group"
+            role="button"
+            tabIndex={0}
+            title="Return to Explore map"
           >
             <div className="w-8 h-8 rounded-xl bg-teal-700 flex items-center justify-center text-white shadow-xs group-hover:bg-teal-800 transition">
               <Globe2 className="w-4 h-4" />
@@ -121,6 +109,49 @@ export function App() {
             </div>
           </div>
         </div>
+
+        {/* Center: 3-Mode Workspace Switcher (Explore | Analyze | Deep Analysis) */}
+        <nav className="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200/90 shadow-xs" aria-label="Workspace Modes">
+          <button
+            type="button"
+            onClick={() => handleModeChange('explore')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition ${
+              workspaceMode === 'explore'
+                ? 'bg-white text-teal-800 shadow-xs border border-slate-200/90'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+            }`}
+            title="Explore Mode: Map-first geographic exploration"
+          >
+            <Map className="w-3.5 h-3.5 text-teal-700" />
+            <span className="hidden sm:inline">Explore</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleModeChange('analyze')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition ${
+              workspaceMode === 'analyze'
+                ? 'bg-white text-teal-800 shadow-xs border border-slate-200/90'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+            }`}
+            title="Analyze Mode: Map with analytical results drawer"
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5 text-teal-700" />
+            <span className="hidden sm:inline">Analyze</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => handleModeChange('deep-analysis')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition ${
+              workspaceMode === 'deep-analysis'
+                ? 'bg-teal-700 text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+            }`}
+            title="Deep Analysis Mode: Dedicated full-width scientific workspace"
+          >
+            <TrendingUp className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Deep Analysis</span>
+          </button>
+        </nav>
 
         {/* Right: ERA5 Data Provenance Badge & Backend Status */}
         <div className="flex items-center gap-2 sm:gap-3">
@@ -172,11 +203,52 @@ export function App() {
             )}
           </div>
 
+          {/* AI Assistant Quick Toggle */}
+          <button
+            type="button"
+            onClick={handleOpenAIDrawer}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-medium text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition"
+            title="Open AI Climate Assistant"
+          >
+            <Bot className="w-3.5 h-3.5 text-teal-700" />
+            <span className="hidden sm:inline">AI Briefing</span>
+          </button>
+
+          {/* Data Sources Provenance Modal Button */}
+          <button
+            type="button"
+            onClick={() => setIsDataSourcesOpen(true)}
+            className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition hidden sm:flex items-center justify-center"
+            title="Data Sources & Observation Stations"
+            aria-label="View data sources"
+          >
+            <Database className="w-4 h-4" />
+          </button>
+
+          {/* System Info Shortcut */}
+          <button
+            type="button"
+            onClick={() => setActiveTab(activeTab === 'system' ? 'dashboard' : 'system')}
+            className={`p-1.5 rounded-xl transition hidden sm:flex items-center justify-center ${
+              activeTab === 'system'
+                ? 'bg-teal-50 text-teal-800 border border-teal-200'
+                : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
+            }`}
+            title="System Status & Health Diagnostics"
+            aria-label="View system info"
+          >
+            <Server className="w-4 h-4" />
+          </button>
+
           {/* Methodology Shortcut */}
           <button
             type="button"
-            onClick={() => handleNavSelect('methodology')}
-            className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition hidden sm:flex items-center justify-center"
+            onClick={() => setActiveTab(activeTab === 'methodology' ? 'dashboard' : 'methodology')}
+            className={`p-1.5 rounded-xl transition hidden sm:flex items-center justify-center ${
+              activeTab === 'methodology'
+                ? 'bg-teal-50 text-teal-800 border border-teal-200'
+                : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
+            }`}
             title="Scientific methodology documentation"
             aria-label="View methodology"
           >
@@ -204,38 +276,36 @@ export function App() {
         onRetry={handleCheckHealth}
       />
 
-      {/* 3. Main Workspace: Compact Navigation Rail + Full-Viewport Map */}
+      {/* 3. Main Workspace: Full-Viewport Map and Scientific Drawer */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* Compact Navigation Rail (60px default -> 240px expanded) */}
-        <NavigationRail
-          activeRoute={activeNavRoute}
-          onRouteChange={handleNavSelect}
-          isExpanded={isNavExpanded}
-          onToggleExpand={() => setIsNavExpanded(!isNavExpanded)}
-          isMobileOpen={isMobileNavOpen}
-          onMobileClose={() => setIsMobileNavOpen(false)}
-        />
-
         {/* Main Body Area */}
         <main className="flex-1 relative overflow-hidden h-full">
           {activeTab === 'dashboard' && (
             <DashboardShell
               ref={dashboardRef}
               connectionState={connectionState}
-              onOpenMethodology={() => handleNavSelect('methodology')}
-              onToggleNavRail={handleToggleNavRail}
-              isNavExpanded={isNavExpanded}
+              onOpenMethodology={() => setActiveTab('methodology')}
+              workspaceMode={workspaceMode}
+              onWorkspaceModeChange={(mode) => {
+                setWorkspaceMode(mode);
+              }}
               onActiveDrawerChange={(drawer) => {
-                if (drawer === 'analysis') setActiveNavRoute('analysis');
-                else if (drawer === 'assistant') setActiveNavRoute('assistant');
-                else setActiveNavRoute('explore');
+                if (drawer === 'analysis') {
+                  setWorkspaceMode('analyze');
+                } else if (drawer === 'assistant') {
+                  // assistant drawer active
+                } else {
+                  if (workspaceMode !== 'deep-analysis') {
+                    setWorkspaceMode('explore');
+                  }
+                }
               }}
             />
           )}
 
           {activeTab === 'methodology' && (
             <div className="h-full overflow-y-auto bg-slate-50">
-              <MethodologyView onBackToMap={() => handleNavSelect('explore')} />
+              <MethodologyView onBackToMap={handleOpenExplore} />
             </div>
           )}
 
@@ -247,7 +317,7 @@ export function App() {
                 errorMessage={errorMessage}
                 apiBaseUrl={apiBaseUrl}
                 onRefreshHealth={handleCheckHealth}
-                onBackToMap={() => handleNavSelect('explore')}
+                onBackToMap={handleOpenExplore}
               />
             </div>
           )}

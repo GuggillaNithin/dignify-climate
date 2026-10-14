@@ -10,7 +10,6 @@ import {
   CloudRain,
   Navigation,
   Check,
-  Menu,
   ShieldCheck,
   Sliders,
   Calendar,
@@ -67,8 +66,6 @@ export const FloatingSearchBar: React.FC<FloatingSearchBarProps> = ({
   thresholdPercentile,
   thresholdValue,
   thresholdUnit = '°C',
-  onToggleNavRail,
-  isNavExpanded,
   selectedPoint,
   onShortcutSelect,
   isControlsOpen = false,
@@ -221,7 +218,7 @@ export const FloatingSearchBar: React.FC<FloatingSearchBarProps> = ({
   return (
     <div
       ref={searchContainerRef}
-      className="absolute top-3 left-3 sm:top-4 sm:left-16 z-30 w-[calc(100%-1.5rem)] sm:w-[460px] md:w-[480px] max-w-[calc(100vw-2rem)] pointer-events-auto max-h-[calc(100vh-5rem)] flex flex-col"
+      className="absolute top-3 left-3 sm:top-4 sm:left-4 z-30 w-[calc(100%-1.5rem)] sm:w-[460px] md:w-[480px] max-w-[calc(100vw-2rem)] pointer-events-auto max-h-[calc(100vh-5rem)] flex flex-col"
     >
       <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-3 sm:p-3.5 shadow-xl flex flex-col gap-2.5 text-slate-800 transition-all max-h-[calc(100vh-5.5rem)]">
         {/* Row 1: Workspace Heading & Subtitle */}
@@ -245,18 +242,6 @@ export const FloatingSearchBar: React.FC<FloatingSearchBarProps> = ({
         {/* Row 2: Location Search Bar with Autocomplete Dropdown */}
         <div className="relative">
           <div className="relative flex items-center bg-slate-50/90 hover:bg-slate-50 rounded-xl border border-slate-200 h-10 px-3 transition-colors focus-within:ring-2 focus-within:ring-teal-600 focus-within:border-transparent focus-within:bg-white">
-            {onToggleNavRail && (
-              <button
-                type="button"
-                onClick={onToggleNavRail}
-                className="p-1 -ml-1 mr-1.5 text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-200/60 transition focus:outline-none"
-                title={isNavExpanded ? 'Collapse navigation rail' : 'Expand navigation rail'}
-                aria-label="Toggle navigation menu"
-              >
-                <Menu className="w-4 h-4" />
-              </button>
-            )}
-
             <div className="flex items-center text-slate-400 mr-2">
               {isLoading ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-teal-700" />
