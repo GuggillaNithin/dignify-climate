@@ -185,6 +185,9 @@ export const DashboardShell = forwardRef<DashboardShellRef, DashboardShellProps>
 
     setIsAnalyzing(true);
     setAnalysisError(null);
+    setIsAnalysisDrawerOpen(true);
+    setIsAIDrawerOpen(false);
+    onActiveDrawerChange?.('analysis');
 
     const startDate = `${draftStartYear}-01-01`;
     const endDate = `${draftEndYear}-12-31`;
@@ -242,6 +245,7 @@ export const DashboardShell = forwardRef<DashboardShellRef, DashboardShellProps>
     draftMinSpatialCoveragePct,
     draftSampleDensity,
     draftLocationName,
+    onActiveDrawerChange,
   ]);
 
   // Execute applied analysis

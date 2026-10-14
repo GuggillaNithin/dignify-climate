@@ -682,7 +682,10 @@ export const AnalysisControlsPanel: React.FC<AnalysisControlsPanelProps> = ({
       <div className="pt-2 border-t border-slate-100 flex flex-col sm:flex-row gap-2">
         <button
           type="button"
-          onClick={onApplyAnalysis}
+          onClick={() => {
+            onApplyAnalysis();
+            onOpenAnalysisDrawer?.();
+          }}
           disabled={!isDateRangeValid || isAnalyzing}
           className={`flex-1 py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 text-xs font-bold transition shadow-xs ${
             !isDateRangeValid || isAnalyzing
