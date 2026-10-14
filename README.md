@@ -1,15 +1,15 @@
-# TerraScope AI — Climate Hazard Trend Analyzer
+# Dignify AI — Climate Hazard Trend Analyzer
 
-[![Backend Tests](https://img.shields.io/badge/pytest-104%20passed-emerald?style=flat-square&logo=pytest)](file:///c:/Users/Maple%20Edge/Downloads/nitin%20workspace/Terrascope/backend/tests)
-[![Frontend Tests](https://img.shields.io/badge/node%20--test-32%20passed-emerald?style=flat-square&logo=node.js)](file:///c:/Users/Maple%20Edge/Downloads/nitin%20workspace/Terrascope/frontend)
-[![Vite Build](https://img.shields.io/badge/vite%20build-passing%20(1.4s)-cyan?style=flat-square&logo=vite)](file:///c:/Users/Maple%20Edge/Downloads/nitin%20workspace/Terrascope/frontend/dist)
+[![Backend Tests](https://img.shields.io/badge/pytest-104%20passed-emerald?style=flat-square&logo=pytest)](file:///c:/Users/Maple%20Edge/Downloads/nitin%20workspace/Dignify/backend/tests)
+[![Frontend Tests](https://img.shields.io/badge/node%20--test-32%20passed-emerald?style=flat-square&logo=node.js)](file:///c:/Users/Maple%20Edge/Downloads/nitin%20workspace/Dignify/frontend)
+[![Vite Build](https://img.shields.io/badge/vite%20build-passing%20(1.4s)-cyan?style=flat-square&logo=vite)](file:///c:/Users/Maple%20Edge/Downloads/nitin%20workspace/Dignify/frontend/dist)
 [![Python Version](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue?style=flat-square&logo=python)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-teal?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![React Version](https://img.shields.io/badge/React-19.0-61dafb?style=flat-square&logo=react)](https://react.dev/)
 [![D3.js](https://img.shields.io/badge/D3.js-7.9-orange?style=flat-square&logo=d3.js)](https://d3js.org/)
 [![License](https://img.shields.io/badge/Data%20License-CC--BY%204.0-lightgrey?style=flat-square)](https://open-meteo.com/en/features)
 
-> **TerraScope AI** is a production-minded climate hazard trend analysis platform and scientific GIS workspace. It enables climate researchers, risk analysts, civil engineers, and policy planners to evaluate multi-decadal historical trends across extreme climate hazards—**Heatwaves**, **Meteorological Drought Proxies**, and **Heavy Rainfall**—using empirical reanalysis data from ECMWF ERA5, deterministic Python statistical algorithms, interactive 2D Leaflet and 3D WebGL cartography, D3.js analytical charts, and fact-grounded AI synthesis.
+> **Dignify AI** is a production-minded climate hazard trend analysis platform and scientific GIS workspace. It enables climate researchers, risk analysts, civil engineers, and policy planners to evaluate multi-decadal historical trends across extreme climate hazards—**Heatwaves**, **Meteorological Drought Proxies**, and **Heavy Rainfall**—using empirical reanalysis data from ECMWF ERA5, deterministic Python statistical algorithms, interactive 2D Leaflet and 3D WebGL cartography, D3.js analytical charts, and fact-grounded AI synthesis.
 
 ---
 
@@ -115,7 +115,7 @@ Assessing regional climate risks typically forces researchers and decision-maker
 
 ## C. Prerequisites
 
-Before installing TerraScope AI locally, ensure your workstation meets the following runtime requirements:
+Before installing Dignify AI locally, ensure your workstation meets the following runtime requirements:
 
 | Dependency | Minimum Version | Verified Version | Purpose |
 | :--- | :---: | :---: | :--- |
@@ -282,7 +282,7 @@ To verify complete end-to-end operational readiness:
 
 ## E. Environment Variables
 
-TerraScope AI strictly separates public client-side configuration from private backend credentials. Client-side builds never contain database URIs, API master secrets, or LLM keys.
+Dignify AI strictly separates public client-side configuration from private backend credentials. Client-side builds never contain database URIs, API master secrets, or LLM keys.
 
 ### Backend Configuration (`backend/.env`)
 
@@ -294,7 +294,7 @@ TerraScope AI strictly separates public client-side configuration from private b
 | `DEBUG` | Boolean | `false` | Enables verbose FastAPI debug logging |
 | `CORS_ORIGINS` | JSON / List | `["http://localhost:5173", "http://127.0.0.1:5173"]` | Allowed browser origins for Cross-Origin Resource Sharing |
 | `MONGODB_URI` | Secret | `""` | MongoDB Atlas SRV connection string with credentials |
-| `MONGODB_DATABASE` | String | `"terrascope"` | MongoDB target database name |
+| `MONGODB_DATABASE` | String | `"Dignify"` | MongoDB target database name |
 | `OPEN_METEO_ARCHIVE_URL` | URL | `"https://archive-api.open-meteo.com/v1/archive"` | Base URL for historical reanalysis queries |
 | `PROVIDER_TIMEOUT_SECONDS`| Float | `15.0` | Upstream weather API request timeout in seconds |
 | `PROVIDER_MAX_RETRIES` | Integer | `3` | Maximum retry attempts with exponential jitter for failed upstream calls |
@@ -430,7 +430,7 @@ flowchart TD
 
 ## G. Data Sources and Provenance
 
-TerraScope AI retrieves historical weather observations exclusively from verified reanalysis products.
+Dignify AI retrieves historical weather observations exclusively from verified reanalysis products.
 
 ### 1. Primary Climate Data Provider
 - **Provider:** [Open-Meteo Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api)
@@ -526,7 +526,7 @@ All statistical procedures are implemented in `backend/app/domain/trends.py` usi
 - **Incomplete Year Exclusion:** Any calendar year missing $>10\%$ of daily observations ($>36$ days) is flagged in `excluded_years` and excluded from annual trend regressions.
 
 ### 4. Multi-Year Window Comparisons
-- To prevent noisy single-year endpoint biases, TerraScope AI compares multi-year mean windows ($k = \max(2, \min(5, \lfloor n/3 \rfloor))$ years):
+- To prevent noisy single-year endpoint biases, Dignify AI compares multi-year mean windows ($k = \max(2, \min(5, \lfloor n/3 \rfloor))$ years):
   - **Baseline Window Mean:** Mean of the first $k$ valid years.
   - **Recent Window Mean:** Mean of the final $k$ valid years.
 - **Absolute Change:** $\Delta_{\text{abs}} = \text{Mean}_{\text{recent}} - \text{Mean}_{\text{baseline}}$.
@@ -644,7 +644,7 @@ The backend exposes a fully typed REST API documented via OpenAPI 3.1 at `/docs`
 
 ## K. Database Schema and Caching Engine
 
-TerraScope AI utilizes **MongoDB Atlas** for asynchronous data persistence and multi-level caching via `motor`.
+Dignify AI utilizes **MongoDB Atlas** for asynchronous data persistence and multi-level caching via `motor`.
 
 ### Collections and Compound Indexes
 
@@ -672,7 +672,7 @@ If MongoDB Atlas is offline, unconfigured, or unreachable:
 
 ## L. User Guide: Analytical Workflows
 
-TerraScope AI features three dedicated workspace modes tailored to different stages of scientific analysis:
+Dignify AI features three dedicated workspace modes tailored to different stages of scientific analysis:
 
 ```
 +-----------------------------------------------------------------------------------+
@@ -798,7 +798,7 @@ The backend includes a declarative infrastructure blueprint in `backend/render.y
   - `DEBUG`: `false`
   - `CORS_ORIGINS`: `["https://your-frontend.vercel.app"]`
   - `MONGODB_URI`: Connection string to your MongoDB Atlas production cluster
-  - `MONGODB_DATABASE`: `"terrascope"`
+  - `MONGODB_DATABASE`: `"Dignify"`
   - `GROQ_API_KEY`: Your production Groq Cloud API key
 
 ---
@@ -845,7 +845,7 @@ The following prioritized roadmap outlines engineering and scientific enhancemen
 
 ### Responsible Use Disclaimer
 > [!WARNING]
-> **Prototype Scientific Disclaimer:** TerraScope AI is a research and educational prototype designed for retrospective historical climate hazard exploration. It is **not** an operational meteorological forecasting service, civil defense warning system, or commercial legal compliance tool. Emergency management decisions should always rely on official guidance from national meteorological services (e.g., NOAA, ECMWF, JMA, Met Office).
+> **Prototype Scientific Disclaimer:** Dignify AI is a research and educational prototype designed for retrospective historical climate hazard exploration. It is **not** an operational meteorological forecasting service, civil defense warning system, or commercial legal compliance tool. Emergency management decisions should always rely on official guidance from national meteorological services (e.g., NOAA, ECMWF, JMA, Met Office).
 
 ### AI Assistance Disclosure
 In compliance with case-study guidelines, AI coding assistance (Anthropic Claude and Google Antigravity IDE) was utilized during the development of this project for pair programming, test case generation, TypeScript interface alignment, and technical documentation drafting. All scientific formulas, statistical calculations, data normalization pipelines, and architecture designs were reviewed, verified, and tested against empirical specifications by the engineering team.
@@ -866,4 +866,4 @@ In compliance with case-study guidelines, AI coding assistance (Anthropic Claude
 
 ---
 
-*TerraScope AI Climate Hazard Trend Analyzer — Designed and built for the Technical Case-Study Evaluation.*g
+*Dignify AI Climate Hazard Trend Analyzer — Designed and built for the Technical Case-Study Evaluation.*g
