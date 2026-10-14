@@ -569,6 +569,8 @@ export const DashboardShell = forwardRef<DashboardShellRef, DashboardShellProps>
           onExportPDF={handleExportPDF}
           exportingType={exportingType}
           exportError={exportError}
+          selectedYear={selectedYear}
+          onYearSelect={setSelectedYear}
           onOpenAIDrawer={() => {
             setIsAIDrawerOpen(true);
             onActiveDrawerChange?.('assistant');
@@ -600,6 +602,7 @@ export const DashboardShell = forwardRef<DashboardShellRef, DashboardShellProps>
               setLocationName(label);
               setDraftLocationName(label);
             }}
+            onLocationSelect={handleLocationSelect}
             mode={spatialMode}
             selectedBounds={spatialMode === 'bounding_box' ? targetBounds : null}
             onBoundsChange={(b) => {
@@ -607,6 +610,13 @@ export const DashboardShell = forwardRef<DashboardShellRef, DashboardShellProps>
               setDraftBounds(b);
             }}
             sampledPoints={analysisResult?.sampled_points}
+            annualSeries={analysisResult?.annual_series}
+            selectedYear={selectedYear}
+            onYearSelect={setSelectedYear}
+            hazardType={selectedHazard}
+            percentileThreshold={percentileThreshold}
+            startYear={startYear}
+            endYear={endYear}
             basemap={basemap}
             onBasemapChange={setBasemap}
             locationName={locationName}
@@ -835,6 +845,8 @@ export const DashboardShell = forwardRef<DashboardShellRef, DashboardShellProps>
         onInspectWeatherStream={handleRunWeatherQuery}
         weatherData={weatherData}
         isIngestingWeather={isIngestingWeather}
+        selectedYear={selectedYear}
+        onYearSelect={setSelectedYear}
         onOpenAIDrawer={() => {
           setIsAnalysisDrawerOpen(false);
           setIsAIDrawerOpen(true);

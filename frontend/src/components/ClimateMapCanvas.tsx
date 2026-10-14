@@ -4,6 +4,8 @@ import {
   TileLayer,
   Marker,
   Rectangle,
+  CircleMarker,
+  Tooltip,
   useMap,
   useMapEvents,
 } from 'react-leaflet';
@@ -14,25 +16,46 @@ import {
   Crosshair,
   RotateCcw,
   Layers,
+  Eye,
+  EyeOff,
+  Info,
 } from 'lucide-react';
 import type {
   PointCoordinate,
   BoundingBox,
   SampledGridPoint,
+  RegionalAnnualMetric,
 } from '../types/api';
+import {
+  SUPPORTED_OBSERVATORIES,
+  getHazardMarkerColor,
+  getHazardLegendConfig,
+  type SupportedObservatory,
+} from '../utils/globeTextures';
+import type { HazardType } from './DashboardShell';
 
 export type BasemapType = 'positron' | 'satellite' | 'street';
 
-interface ClimateMapCanvasProps {
+export interface ClimateMapCanvasProps {
   selectedPoint: PointCoordinate;
   onPointSelect: (pt: PointCoordinate) => void;
+  onLocationSelect?: (loc: { name: string; point: PointCoordinate }) => void;
   mode: 'point' | 'bounding_box';
   selectedBounds?: BoundingBox | null;
   onBoundsChange?: (bounds: BoundingBox) => void;
   sampledPoints?: SampledGridPoint[];
+  annualSeries?: RegionalAnnualMetric[];
+  selectedYear?: number | null;
+  onYearSelect?: (year: number) => void;
+  hazardType?: HazardType;
+  percentileThreshold?: number;
+  startYear?: number;
+  endYear?: number;
   basemap: BasemapType;
   onBasemapChange: (basemap: BasemapType) => void;
   locationName?: string;
+  showHazardOverlay?: boolean;
+  onToggleHazardOverlay?: () => void;
 }
 
 // Custom Leaflet Point Marker SVG Icon
@@ -61,19 +84,6 @@ const createLightPointMarkerIcon = (label?: string) =>
     `,
     iconSize: [36, 48],
     iconAnchor: [18, 48],
-  });
-
-// Grid Sample Cell Icon for multi-cell regional sampling
-const createGridSampleIcon = (weight: number, key: string) =>
-  L.divIcon({
-    className: 'grid-sample-marker',
-    html: `
-      <div title="ERA5 Cell ${key} (Weight: ${(weight * 100).toFixed(1)}%)" 
-           style="width: 12px; height: 12px; background: #0f766e; border: 2px solid #ffffff; border-radius: 9999px; box-shadow: 0 2px 5px rgba(0,0,0,0.35);">
-      </div>
-    `,
-    iconSize: [12, 12],
-    iconAnchor: [6, 6],
   });
 
 // Programmatic map movement controller
@@ -190,20 +200,39 @@ function MapActionControls({
   );
 }
 
-// Floating Basemap Switcher Pill (Google Maps bottom-right Layers button)
+// Floating Basemap & Hazard Overlay Switcher
 function BasemapToggle({
   basemap,
   onChange,
+  overlayVisible,
+  onToggleOverlay,
 }: {
   basemap: BasemapType;
   onChange: (b: BasemapType) => void;
+  overlayVisible: boolean;
+  onToggleOverlay: () => void;
 }) {
   const [showOptions, setShowOptions] = useState(false);
 
   return (
-    <div className="absolute right-4 bottom-44 z-[1000] flex flex-col items-end">
+    <div className="absolute right-4 bottom-44 z-[1000] flex flex-col items-end gap-2">
+      {/* Quick Hazard Layer Toggle Button */}
+      <button
+        type="button"
+        onClick={onToggleOverlay}
+        className={`flex items-center gap-2 px-3 py-2 rounded-xl shadow-md text-xs font-medium border transition ${
+          overlayVisible
+            ? 'bg-teal-700 text-white border-teal-800 shadow-teal-900/20'
+            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+        }`}
+        title={overlayVisible ? 'Hide hazard geographic overlay' : 'Show hazard geographic overlay'}
+      >
+        {overlayVisible ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+        <span>Hazard Overlay</span>
+      </button>
+
       {showOptions && (
-        <div className="mb-2 p-1.5 bg-white rounded-xl shadow-lg border border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 transition">
+        <div className="p-1.5 bg-white rounded-xl shadow-lg border border-slate-200 flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 transition">
           <button
             type="button"
             onClick={() => {
@@ -267,19 +296,34 @@ function BasemapToggle({
 export const ClimateMapCanvas: React.FC<ClimateMapCanvasProps> = ({
   selectedPoint,
   onPointSelect,
+  onLocationSelect,
   mode,
   selectedBounds,
   onBoundsChange,
   sampledPoints = [],
+  annualSeries = [],
+  selectedYear = null,
+  onYearSelect: _onYearSelect,
+  hazardType = 'heatwave',
+  percentileThreshold: _percentileThreshold = 95,
+  startYear: _startYear,
+  endYear: _endYear,
   basemap,
   onBasemapChange,
   locationName,
+  showHazardOverlay = true,
+  onToggleHazardOverlay,
 }) => {
   const [mapCenter, setMapCenter] = useState<[number, number]>([
     selectedPoint.latitude,
     selectedPoint.longitude,
   ]);
   const [mapZoom, setMapZoom] = useState<number>(8);
+  const [internalOverlayVisible, setInternalOverlayVisible] = useState<boolean>(showHazardOverlay);
+  const [legendOpen, setLegendOpen] = useState<boolean>(true);
+
+  const overlayVisible = onToggleHazardOverlay ? showHazardOverlay : internalOverlayVisible;
+  const toggleOverlay = onToggleHazardOverlay || (() => setInternalOverlayVisible((v) => !v));
 
   // Sync center when selectedPoint updates
   useEffect(() => {
@@ -296,6 +340,22 @@ export const ClimateMapCanvas: React.FC<ClimateMapCanvasProps> = ({
     setMapCenter([20, 0]);
     setMapZoom(3);
   };
+
+  const legendConfig = getHazardLegendConfig(hazardType);
+
+  // Helper to extract baseline observatory metric value
+  const getObservatoryMetric = (obs: SupportedObservatory) => {
+    if (hazardType === 'heatwave') {
+      return { value: obs.baselineHeatwaveDays, formatted: `${obs.baselineHeatwaveDays.toFixed(1)} days/yr` };
+    }
+    if (hazardType === 'drought') {
+      return { value: obs.baselineDroughtDeficitDays, formatted: `${obs.baselineDroughtDeficitDays.toFixed(1)} deficit days/yr` };
+    }
+    return { value: obs.baselineHeavyRainDays, formatted: `${obs.baselineHeavyRainDays.toFixed(1)} extreme days/yr` };
+  };
+
+  // Find active year metric series for sampled grid cells
+  const currentYearSeries = annualSeries?.find((s) => s.year === selectedYear);
 
   return (
     <div className="relative w-full h-full select-none overflow-hidden z-0" style={{ isolation: 'isolate' }}>
@@ -348,7 +408,167 @@ export const ClimateMapCanvas: React.FC<ClimateMapCanvasProps> = ({
           </>
         )}
 
-        {/* Single Point Analysis Marker */}
+        {/* 4. Global Scientific Climate Observatories Overlay (Synchronized with 3D Globe) */}
+        {overlayVisible &&
+          SUPPORTED_OBSERVATORIES.map((obs) => {
+            const metric = getObservatoryMetric(obs);
+            const color = getHazardMarkerColor(hazardType, metric.value);
+            const isSelectedStation =
+              Math.abs(selectedPoint.latitude - obs.latitude) < 0.08 &&
+              Math.abs(selectedPoint.longitude - obs.longitude) < 0.08;
+
+            return (
+              <React.Fragment key={`obs-${obs.name}`}>
+                {/* Outer halo ring */}
+                <CircleMarker
+                  center={[obs.latitude, obs.longitude]}
+                  radius={isSelectedStation ? 16 : 10}
+                  pathOptions={{
+                    color: isSelectedStation ? '#f59e0b' : color,
+                    fillColor: isSelectedStation ? '#f59e0b' : color,
+                    fillOpacity: isSelectedStation ? 0.45 : 0.22,
+                    weight: isSelectedStation ? 2 : 1,
+                  }}
+                />
+
+                {/* Core dot */}
+                <CircleMarker
+                  center={[obs.latitude, obs.longitude]}
+                  radius={isSelectedStation ? 6.5 : 5}
+                  pathOptions={{
+                    color: '#ffffff',
+                    fillColor: color,
+                    fillOpacity: 1,
+                    weight: 2,
+                  }}
+                  eventHandlers={{
+                    click: () => {
+                      if (onLocationSelect) {
+                        onLocationSelect({
+                          name: `${obs.name}, ${obs.country}`,
+                          point: { latitude: obs.latitude, longitude: obs.longitude },
+                        });
+                      } else {
+                        onPointSelect({ latitude: obs.latitude, longitude: obs.longitude });
+                      }
+                    },
+                  }}
+                >
+                  <Tooltip direction="top" offset={[0, -8]} opacity={0.98} sticky>
+                    <div className="p-1 font-sans text-xs">
+                      <div className="font-bold text-slate-900 flex items-center justify-between gap-2">
+                        <span>
+                          {obs.name}, {obs.country}
+                        </span>
+                        <span className="text-[10px] font-mono px-1 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold border border-slate-200">
+                          Observatory
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-500 mt-0.5">
+                        {obs.climateZone} • {obs.description}
+                      </div>
+                      <div className="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-between gap-3">
+                        <span className="text-[11px] font-medium text-slate-600 capitalize">
+                          {hazardType.replace('_', ' ')}:
+                        </span>
+                        <span className="text-xs font-mono font-bold" style={{ color }}>
+                          {metric.formatted}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-teal-700 mt-1 font-medium">
+                        Click station to load as analysis site
+                      </div>
+                    </div>
+                  </Tooltip>
+                </CircleMarker>
+              </React.Fragment>
+            );
+          })}
+
+        {/* 5. ERA5 Deterministic 0.25° Grid Cells Hazard Overlay (Multi-Cell Regional Sampling) */}
+        {overlayVisible &&
+          sampledPoints &&
+          sampledPoints.length > 0 &&
+          sampledPoints.map((sp) => {
+            // Exact ERA5 0.25° x 0.25° spatial grid cell bounds
+            const bounds: [[number, number], [number, number]] = [
+              [sp.latitude - 0.125, sp.longitude - 0.125],
+              [sp.latitude + 0.125, sp.longitude + 0.125],
+            ];
+
+            const contribution = currentYearSeries?.point_contributions?.find(
+              (pc) => pc.grid_key === sp.grid_key
+            );
+            const hasData = contribution && contribution.is_valid && contribution.hazard_days !== null;
+            const isInvalid = contribution && !contribution.is_valid;
+            const val = contribution?.hazard_days ?? contribution?.primary_metric;
+
+            const cellColor =
+              hasData && val !== null && val !== undefined
+                ? getHazardMarkerColor(hazardType, val)
+                : isInvalid
+                ? '#64748b'
+                : '#0891b2';
+
+            return (
+              <Rectangle
+                key={`grid-cell-${sp.grid_key}`}
+                bounds={bounds}
+                pathOptions={{
+                  color: cellColor,
+                  fillColor: cellColor,
+                  fillOpacity: hasData ? 0.45 : isInvalid ? 0.15 : 0.2,
+                  weight: isInvalid ? 1 : 1.5,
+                  dashArray: isInvalid ? '4, 4' : undefined,
+                }}
+                eventHandlers={{
+                  click: () => {
+                    onPointSelect({ latitude: sp.latitude, longitude: sp.longitude });
+                  },
+                }}
+              >
+                <Tooltip direction="top" offset={[0, -10]} opacity={0.98} sticky>
+                  <div className="p-1 font-sans text-xs">
+                    <div className="font-bold text-slate-900 flex items-center justify-between gap-2">
+                      <span>ERA5 Cell {sp.grid_key}</span>
+                      <span className="text-[10px] font-mono px-1 py-0.5 rounded bg-teal-50 text-teal-800 font-semibold border border-teal-200">
+                        0.25° Grid
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-500 font-mono mt-0.5">
+                      {sp.latitude.toFixed(2)}°N, {sp.longitude.toFixed(2)}°E • Area Weight: {(sp.normalized_weight * 100).toFixed(1)}%
+                    </div>
+                    <div className="mt-1.5 pt-1.5 border-t border-slate-100 flex items-center justify-between gap-3">
+                      <span className="text-[11px] font-medium text-slate-600">
+                        {selectedYear ? `Year ${selectedYear} Metric:` : 'Annual Hazard Value:'}
+                      </span>
+                      {hasData && val !== null && val !== undefined ? (
+                        <span className="text-xs font-mono font-bold" style={{ color: cellColor }}>
+                          {val.toFixed(1)} {legendConfig.units}
+                        </span>
+                      ) : isInvalid ? (
+                        <span className="text-[11px] text-rose-600 font-semibold">
+                          Missing / Excluded by Filter
+                        </span>
+                      ) : (
+                        <span className="text-[11px] text-slate-400 italic">
+                          Run analysis to calculate
+                        </span>
+                      )}
+                    </div>
+                    {contribution?.event_count !== undefined && contribution.event_count !== null && (
+                      <div className="text-[10px] text-slate-500">
+                        Consecutive Events: {contribution.event_count}
+                      </div>
+                    )}
+                    <div className="text-[10px] text-teal-700 mt-0.5 font-medium">Click to select cell</div>
+                  </div>
+                </Tooltip>
+              </Rectangle>
+            );
+          })}
+
+        {/* 6. Single Point Analysis Target Marker */}
         {mode === 'point' && (
           <Marker
             position={[selectedPoint.latitude, selectedPoint.longitude]}
@@ -356,33 +576,92 @@ export const ClimateMapCanvas: React.FC<ClimateMapCanvasProps> = ({
           />
         )}
 
-        {/* Bounding Box Mode: Rectangle & Sampled Points */}
+        {/* 7. Bounding Box Mode Outline */}
         {mode === 'bounding_box' && selectedBounds && (
-          <>
-            <Rectangle
-              bounds={[
-                [selectedBounds.south, selectedBounds.west],
-                [selectedBounds.north, selectedBounds.east],
-              ]}
-              pathOptions={{
-                color: '#0891b2',
-                weight: 2,
-                dashArray: '5, 5',
-                fillColor: '#0891b2',
-                fillOpacity: 0.1,
-              }}
-            />
-
-            {sampledPoints.map((sp) => (
-              <Marker
-                key={sp.grid_key}
-                position={[sp.latitude, sp.longitude]}
-                icon={createGridSampleIcon(sp.normalized_weight, sp.grid_key)}
-              />
-            ))}
-          </>
+          <Rectangle
+            bounds={[
+              [selectedBounds.south, selectedBounds.west],
+              [selectedBounds.north, selectedBounds.east],
+            ]}
+            pathOptions={{
+              color: '#0891b2',
+              weight: 2,
+              dashArray: '5, 5',
+              fillColor: '#0891b2',
+              fillOpacity: 0.05,
+            }}
+          />
         )}
       </MapContainer>
+
+      {/* 8. Synchronized 2D Map Hazard Legend (Top-Right, matching 3D globe layout & contract) */}
+      {overlayVisible && (
+        <div className="absolute top-16 sm:top-18 right-3 sm:right-4 z-[1000] bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl shadow-lg text-xs font-sans transition-all max-w-[240px] overflow-hidden">
+          <div
+            onClick={() => setLegendOpen(!legendOpen)}
+            className="flex items-center justify-between gap-2 px-3 py-2 cursor-pointer border-b border-slate-100 hover:bg-slate-50 transition"
+          >
+            <div className="flex items-center gap-1.5 font-bold text-xs text-slate-800">
+              <Info className="w-3.5 h-3.5 text-teal-700" />
+              <span>{legendConfig.title} Scale</span>
+              {selectedYear && (
+                <span className="text-[10px] font-mono font-normal text-teal-700 bg-teal-50 px-1 py-0.2 rounded border border-teal-200">
+                  {selectedYear}
+                </span>
+              )}
+            </div>
+            <span className="text-[10px] text-slate-400">{legendOpen ? '▲' : '▼'}</span>
+          </div>
+
+          {legendOpen && (
+            <div className="p-3 space-y-2.5">
+              <div className="text-[11px] text-slate-500 leading-tight">
+                {legendConfig.metricName} <span className="font-semibold text-slate-700">({legendConfig.units})</span>
+              </div>
+
+              {/* Swatch items */}
+              <div className="space-y-1.5 pt-0.5">
+                {legendConfig.items.map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between gap-2 text-[11px]">
+                    <div className="flex items-center gap-1.5 truncate">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full shadow-xs shrink-0"
+                        style={{ backgroundColor: item.color }}
+                      />
+                      <span className="text-slate-700 truncate">{item.label}</span>
+                    </div>
+                    <span className="text-slate-400 font-mono text-[10px] shrink-0">{item.rangeText}</span>
+                  </div>
+                ))}
+
+                {/* No-data representation */}
+                <div className="flex items-center justify-between gap-2 text-[11px] pt-1 border-t border-slate-100">
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="w-2.5 h-2.5 rounded-full bg-slate-300 border border-dashed border-slate-500 shrink-0" />
+                    <span className="text-slate-500 truncate">No observation</span>
+                  </div>
+                  <span className="text-slate-400 font-mono text-[10px]">Excluded</span>
+                </div>
+
+                {/* Active study site indicator */}
+                <div className="flex items-center justify-between gap-2 text-[11px]">
+                  <div className="flex items-center gap-1.5 truncate">
+                    <span className="w-2.5 h-2.5 rounded-full bg-teal-700 border border-white shadow-xs shrink-0" />
+                    <span className="text-teal-800 font-semibold truncate">Study Location</span>
+                  </div>
+                  <span className="text-teal-700 font-mono text-[10px]">Target</span>
+                </div>
+              </div>
+
+              {/* Spatial Resolution Context */}
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] font-mono text-slate-500">
+                <span>ECMWF ERA5</span>
+                <span>0.25° (~25 km)</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Floating Action Controls */}
       <MapActionControls
@@ -392,8 +671,14 @@ export const ClimateMapCanvas: React.FC<ClimateMapCanvasProps> = ({
         onReset={handleReset}
       />
 
-      {/* Floating Basemap Switcher */}
-      <BasemapToggle basemap={basemap} onChange={onBasemapChange} />
+      {/* Floating Basemap & Hazard Overlay Switcher */}
+      <BasemapToggle
+        basemap={basemap}
+        onChange={onBasemapChange}
+        overlayVisible={overlayVisible}
+        onToggleOverlay={toggleOverlay}
+      />
     </div>
   );
 };
+

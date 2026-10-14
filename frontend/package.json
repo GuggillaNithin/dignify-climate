@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "test": "node --test src/utils/globeTextures.test.ts src/utils/transparency.test.ts src/utils/mapFirstRedesign.test.ts src/utils/scientificControls.test.ts src/utils/d3Visualization.test.ts src/utils/workspaceModes.test.ts",
+    "test": "node --test src/utils/globeTextures.test.ts src/utils/transparency.test.ts src/utils/mapFirstRedesign.test.ts src/utils/scientificControls.test.ts src/utils/d3Visualization.test.ts src/utils/workspaceModes.test.ts src/utils/hazardOverlaySync.test.ts",
     "lint": "oxlint",
     "preview": "vite preview"
   },

@@ -65,6 +65,8 @@ interface AnalysisDrawerProps {
   isIngestingWeather?: boolean;
   onOpenAIDrawer?: () => void;
   onOpenDeepAnalysis?: () => void;
+  selectedYear?: number | null;
+  onYearSelect?: (year: number) => void;
 }
 
 export type DrawerTab = 'overview' | 'charts' | 'events' | 'statistics' | 'quality';
@@ -101,9 +103,16 @@ export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = ({
   isIngestingWeather,
   onOpenAIDrawer,
   onOpenDeepAnalysis,
+  selectedYear: externalSelectedYear,
+  onYearSelect,
 }) => {
   const [showParamControls, setShowParamControls] = useState(false);
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [internalSelectedYear, setInternalSelectedYear] = useState<number | null>(null);
+  const activeSelectedYear = externalSelectedYear !== undefined ? externalSelectedYear : internalSelectedYear;
+  const handleYearSelect = (year: number) => {
+    setInternalSelectedYear(year);
+    onYearSelect?.(year);
+  };
   const [activeTab, setActiveTab] = useState<DrawerTab>('overview');
   const [eventSearchQuery, setEventSearchQuery] = useState<string>('');
 
@@ -776,8 +785,8 @@ export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = ({
                   trendData={analysisResult.trends}
                   eventsList={analysisResult.events_list}
                   definitionsSummary={analysisResult.definitions_summary}
-                  selectedYear={selectedYear}
-                  onYearSelect={setSelectedYear}
+                  selectedYear={activeSelectedYear}
+                  onYearSelect={handleYearSelect}
                 />
               </div>
             )}
@@ -816,9 +825,9 @@ export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = ({
                         <tr
                           key={yr.year}
                           className={`hover:bg-slate-50 transition-colors ${
-                            selectedYear === yr.year ? 'bg-teal-50/50 font-bold' : ''
+                            activeSelectedYear === yr.year ? 'bg-teal-50/50 font-bold' : ''
                           }`}
-                          onClick={() => setSelectedYear(yr.year)}
+                          onClick={() => handleYearSelect(yr.year)}
                         >
                           <td className="py-1.5 px-2.5 text-slate-900">{yr.year}</td>
                           <td className="py-1.5 px-2.5 text-teal-700">

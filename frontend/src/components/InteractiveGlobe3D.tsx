@@ -37,9 +37,9 @@ export const InteractiveGlobe3D: React.FC<InteractiveGlobe3DProps> = ({
   onPointSelect,
   selectedBounds: _selectedBounds,
   mode,
-  annualSeries: _annualSeries = [],
+  annualSeries = [],
   sampledPoints = [],
-  selectedYear: _selectedYear,
+  selectedYear = null,
   onYearSelect: _onYearSelect,
   hazardType = 'heatwave',
   onSwitchTo2DMap,
@@ -502,20 +502,29 @@ export const InteractiveGlobe3D: React.FC<InteractiveGlobe3DProps> = ({
     if (mode !== 'bounding_box' || !sampledPoints || sampledPoints.length === 0) return;
 
     const RADIUS = 80;
+    const yearMetric = annualSeries?.find((s) => s.year === selectedYear);
+
     sampledPoints.forEach((pt) => {
       const pos = latLongToVector3(pt.latitude, pt.longitude, RADIUS + 0.6);
+      const pointContrib = yearMetric?.point_contributions?.find((pc) => pc.grid_key === pt.grid_key);
+      const val = pointContrib?.hazard_days ?? pointContrib?.primary_metric;
+      const cellColorHex = val !== null && val !== undefined
+        ? getHazardMarkerColor(hazardType, val)
+        : '#06b6d4';
+      const threeColor = new THREE.Color(cellColorHex);
+
       const dotGeo = new THREE.BoxGeometry(1.6, 1.6, 1.6);
       const dotMat = new THREE.MeshStandardMaterial({
-        color: 0x06b6d4, // Cyan grid cell
-        emissive: 0x06b6d4,
-        emissiveIntensity: 0.5,
+        color: threeColor,
+        emissive: threeColor,
+        emissiveIntensity: 0.6,
       });
       const dotMesh = new THREE.Mesh(dotGeo, dotMat);
       dotMesh.position.copy(pos);
       dotMesh.lookAt(new THREE.Vector3(0, 0, 0));
       gridGroup.add(dotMesh);
     });
-  }, [mode, sampledPoints, latLongToVector3]);
+  }, [mode, sampledPoints, annualSeries, selectedYear, hazardType, latLongToVector3]);
 
   // Raycasting Helper for Detecting Marker Hover and Click
   const performRaycast = useCallback(
@@ -805,6 +814,11 @@ export const InteractiveGlobe3D: React.FC<InteractiveGlobe3DProps> = ({
           <div className="flex items-center gap-1.5 text-cyan-400 font-bold text-[10px] uppercase">
             <Info className="w-3.5 h-3.5" />
             <span>{legendConfig.title} Scale</span>
+            {selectedYear && (
+              <span className="text-slate-400 font-normal lowercase tracking-normal">
+                ({selectedYear})
+              </span>
+            )}
           </div>
           <span className="text-[10px] text-slate-400">{legendOpen ? '▲' : '▼'}</span>
         </div>

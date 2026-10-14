@@ -38,6 +38,8 @@ export interface DeepAnalysisViewProps {
   exportingType: 'annual_csv' | 'events_csv' | 'pdf' | null;
   exportError: string | null;
   onOpenAIDrawer?: () => void;
+  selectedYear?: number | null;
+  onYearSelect?: (year: number) => void;
 }
 
 export const DeepAnalysisView: React.FC<DeepAnalysisViewProps> = ({
@@ -61,8 +63,15 @@ export const DeepAnalysisView: React.FC<DeepAnalysisViewProps> = ({
   exportingType,
   exportError,
   onOpenAIDrawer,
+  selectedYear: externalSelectedYear,
+  onYearSelect,
 }) => {
-  const [selectedYear, setSelectedYear] = useState<number | null>(endYear);
+  const [internalSelectedYear, setInternalSelectedYear] = useState<number | null>(endYear);
+  const activeSelectedYear = externalSelectedYear !== undefined ? externalSelectedYear : internalSelectedYear;
+  const handleYearSelect = (year: number) => {
+    setInternalSelectedYear(year);
+    onYearSelect?.(year);
+  };
   const [eventSearchQuery, setEventSearchQuery] = useState<string>('');
   const [minDurationFilter, setMinDurationFilter] = useState<number>(0);
   const [activeTab, setActiveTab] = useState<'trends' | 'events' | 'statistics' | 'provenance'>('trends');
@@ -382,8 +391,8 @@ export const DeepAnalysisView: React.FC<DeepAnalysisViewProps> = ({
                   metricUnits={trends?.metric_units || 'days'}
                   olsSlope={trends?.ols_regression?.slope_per_year}
                   olsPValue={trends?.ols_regression?.p_value}
-                  selectedYear={selectedYear}
-                  onYearSelect={setSelectedYear}
+                  selectedYear={activeSelectedYear}
+                  onYearSelect={handleYearSelect}
                   thresholdValue={definitions?.threshold_value}
                   thresholdLabel={
                     definitions?.threshold_value !== undefined
@@ -421,9 +430,9 @@ export const DeepAnalysisView: React.FC<DeepAnalysisViewProps> = ({
                         <tr
                           key={yr.year}
                           className={`hover:bg-slate-800/40 transition-colors ${
-                            selectedYear === yr.year ? 'bg-teal-950/50 font-bold text-white' : 'text-slate-300'
+                            activeSelectedYear === yr.year ? 'bg-teal-950/50 font-bold text-white' : 'text-slate-300'
                           }`}
-                          onClick={() => setSelectedYear(yr.year)}
+                          onClick={() => handleYearSelect(yr.year)}
                         >
                           <td className="py-2 px-3 text-white">{yr.year}</td>
                           <td className="py-2 px-3 text-amber-400">
