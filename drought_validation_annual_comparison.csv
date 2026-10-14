@@ -1,0 +1,10 @@
+year,prod_hazard_days,indep_hazard_days,hazard_days_diff,prod_event_count,indep_event_count,event_count_diff,coverage_pct,mean_deficit_ratio,max_deficit_ratio,status
+2015,116.0,116,0.0,2,2,0,100.0,0.635,0.972,EXACT_MATCH
+2016,86.0,86,0.0,4,4,0,100.0,0.806,1.0,EXACT_MATCH
+2017,86.0,86,0.0,1,1,0,100.0,0.982,1.0,EXACT_MATCH
+2018,117.0,117,0.0,2,2,0,100.0,0.779,0.986,EXACT_MATCH
+2019,115.0,115,0.0,1,1,0,100.0,0.912,0.992,EXACT_MATCH
+2020,52.0,52,0.0,2,2,0,100.0,0.846,0.991,EXACT_MATCH
+2021,0.0,0,0.0,0,0,0,100.0,0.0,0.0,EXACT_MATCH
+2022,36.0,36,0.0,1,1,0,100.0,0.905,0.994,EXACT_MATCH
+2023,75.0,75,0.0,2,2,0,100.0,0.84,0.995,EXACT_MATCH

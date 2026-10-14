@@ -1,0 +1,602 @@
+{
+  "metadata": {
+    "validation_timestamp": "2026-10-13T21:31:55.788785",
+    "target_location": "Mumbai, India",
+    "requested_coordinates": {
+      "latitude": 19.076,
+      "longitude": 72.8777
+    },
+    "resolved_grid_cell": {
+      "latitude": 19.08,
+      "longitude": 72.88,
+      "cell_id": "19.08_72.88"
+    },
+    "spatial_mode": "single nearest ERA5 grid cell",
+    "observation_period": {
+      "start_date": "2015-01-01",
+      "end_date": "2023-12-31"
+    },
+    "hazard": "Meteorological Drought Proxy (Rolling Precipitation Deficit)",
+    "operational_threshold_definition": "Precipitation Deficit Ratio >= 0.50 (50% below baseline norm)",
+    "rolling_window_days": 90,
+    "min_consecutive_days": 14,
+    "baseline_type": "Exploratory DOY Climatological Norm (2015-2023)"
+  },
+  "percentile_inconsistency_audit": {
+    "ui_displayed_setting": "Operational Percentile Threshold (90th percentile)",
+    "actual_backend_parameter": "deficit_threshold = 0.50 (hardcoded in AnalysisService._run_domain_hazard)",
+    "impact_of_percentile_selector": "IGNORED. Changing UI percentile (90, 95, 97.5, 99) creates new cache keys but produces identical drought calculations (683 days, 15 events).",
+    "backend_returned_metadata": "threshold_percentile = 50.0 (derived as deficit_threshold * 100)",
+    "finding_classification": "Incorrect / Inconsistent UI labeling & parameter routing",
+    "recommendation": "Rename UI control for drought hazard to 'Precipitation Deficit Cutoff' with options [30%, 50%, 70%] and route deficit_threshold parameter dynamically."
+  },
+  "rolling_window_boundary_audit": {
+    "total_calendar_days": 3287,
+    "valid_daily_precipitation_observations": 3287,
+    "missing_raw_observations": 0,
+    "incomplete_initial_rolling_windows": 89,
+    "incomplete_window_reason": "Rolling 90-day window requires 90 days of preceding history. Observations begin on 2015-01-01; first 89 days (2015-01-01 to 2015-03-30) have < 90 days history and are strictly assigned None.",
+    "first_valid_rolling_accumulation_date": "2015-03-31",
+    "total_valid_rolling_windows": 3198,
+    "valid_rolling_window_percentage": 97.29,
+    "climatological_baseline_handling": "For DOY 1-89, Year 2015 is omitted from the baseline sum. 8 baseline years (2016-2023) remain, satisfying the >= 3 year threshold.",
+    "calendar_year_boundary_crossings": [
+      {
+        "event_id": 6,
+        "range": "2016-12-31 to 2017-03-04",
+        "duration": 64,
+        "days_in_2016": 1,
+        "days_in_2017": 63,
+        "assigned_event_count_year": 2016
+      },
+      {
+        "event_id": 9,
+        "range": "2018-10-07 to 2019-03-04",
+        "duration": 149,
+        "days_in_2018": 86,
+        "days_in_2019": 63,
+        "assigned_event_count_year": 2018
+      }
+    ],
+    "finding_classification": "Independently verified & internally consistent"
+  },
+  "statistical_reproduction": {
+    "sample_size_years": 9,
+    "ols_regression": {
+      "production": {
+        "slope_per_year": -9.1833,
+        "intercept": 18617.0389,
+        "r_squared": 0.3906,
+        "p_value": 0.07192,
+        "stderr": 4.3356,
+        "confidence_interval_95": [
+          -19.4354,
+          1.0687
+        ],
+        "sample_count": 9,
+        "fitted_values": [
+          {
+            "year": 2015.0,
+            "fitted": 112.62
+          },
+          {
+            "year": 2016.0,
+            "fitted": 103.44
+          },
+          {
+            "year": 2017.0,
+            "fitted": 94.26
+          },
+          {
+            "year": 2018.0,
+            "fitted": 85.07
+          },
+          {
+            "year": 2019.0,
+            "fitted": 75.89
+          },
+          {
+            "year": 2020.0,
+            "fitted": 66.71
+          },
+          {
+            "year": 2021.0,
+            "fitted": 57.52
+          },
+          {
+            "year": 2022.0,
+            "fitted": 48.34
+          },
+          {
+            "year": 2023.0,
+            "fitted": 39.16
+          }
+        ]
+      },
+      "independent": {
+        "slope_per_year": -9.1833,
+        "intercept": 18617.0389,
+        "r_squared": 0.3906,
+        "p_value": 0.07192,
+        "stderr": 4.3356,
+        "confidence_interval_95": [
+          -19.4354,
+          1.0687
+        ],
+        "sample_count": 9
+      },
+      "match": true,
+      "interpretation": "Negative slope (-9.18 days/yr), but p = 0.07192 > 0.05. Not statistically significant at alpha = 0.05."
+    },
+    "mann_kendall": {
+      "production": {
+        "tau": -0.4789,
+        "s_statistic": -17,
+        "variance_s": 91.0,
+        "z_statistic": -1.6773,
+        "p_value": 0.09349,
+        "sens_slope": -8.45,
+        "sample_size": 9,
+        "tied_groups_count": 1
+      },
+      "independent": {
+        "tau": -0.4789,
+        "s_statistic": -17,
+        "variance_s": 91.0,
+        "z_statistic": -1.6773,
+        "p_value": 0.09349,
+        "sens_slope": -8.45,
+        "sample_size": 9,
+        "tied_groups_count": 1,
+        "tie_counts": [
+          2
+        ]
+      },
+      "tie_handling_details": {
+        "method": "Exact tie correction in Var(S) using sum(t*(t-1)*(2t+5)) for each group of tied values",
+        "tied_groups_count": 1,
+        "tie_counts": [
+          2
+        ],
+        "tied_values": "Year 2016 (86 days) and Year 2017 (86 days)"
+      },
+      "continuity_correction": "Z = (S + 1) / sqrt(Var(S)) because S = -17 < 0",
+      "match": true,
+      "interpretation": "Negative rank correlation (tau = -0.4789, Sen's slope = -8.45 days/yr), but p = 0.09349 > 0.05. Monotonic trend is NOT statistically significant at alpha = 0.05."
+    },
+    "window_comparison": {
+      "production": {
+        "early_window_years": [
+          2015,
+          2016,
+          2017
+        ],
+        "early_window_mean": 96.0,
+        "late_window_years": [
+          2021,
+          2022,
+          2023
+        ],
+        "late_window_mean": 37.0,
+        "absolute_change": -59.0,
+        "percentage_change": -61.5,
+        "percentage_change_status": "calculated"
+      },
+      "independent": {
+        "early_window_years": [
+          2015,
+          2016,
+          2017
+        ],
+        "early_window_mean": 96.0,
+        "late_window_years": [
+          2021,
+          2022,
+          2023
+        ],
+        "late_window_mean": 37.0,
+        "absolute_change": -59.0,
+        "percentage_change": -61.5
+      },
+      "match": true,
+      "interpretation": "Early window mean: 96.0 days; Late window mean: 37.0 days; Difference: -59.0 days (-61.5%)."
+    },
+    "finding_classification": "Independently verified"
+  },
+  "annual_comparison_summary": {
+    "total_hazard_days_production": 683.0,
+    "total_hazard_days_independent": 683,
+    "total_events_production": 15,
+    "total_events_independent": 15,
+    "annual_records": [
+      {
+        "year": 2015,
+        "prod_hazard_days": 116.0,
+        "indep_hazard_days": 116,
+        "hazard_days_diff": 0.0,
+        "prod_event_count": 2,
+        "indep_event_count": 2,
+        "event_count_diff": 0,
+        "coverage_pct": 100.0,
+        "mean_deficit_ratio": 0.635,
+        "max_deficit_ratio": 0.972,
+        "status": "EXACT_MATCH"
+      },
+      {
+        "year": 2016,
+        "prod_hazard_days": 86.0,
+        "indep_hazard_days": 86,
+        "hazard_days_diff": 0.0,
+        "prod_event_count": 4,
+        "indep_event_count": 4,
+        "event_count_diff": 0,
+        "coverage_pct": 100.0,
+        "mean_deficit_ratio": 0.806,
+        "max_deficit_ratio": 1.0,
+        "status": "EXACT_MATCH"
+      },
+      {
+        "year": 2017,
+        "prod_hazard_days": 86.0,
+        "indep_hazard_days": 86,
+        "hazard_days_diff": 0.0,
+        "prod_event_count": 1,
+        "indep_event_count": 1,
+        "event_count_diff": 0,
+        "coverage_pct": 100.0,
+        "mean_deficit_ratio": 0.982,
+        "max_deficit_ratio": 1.0,
+        "status": "EXACT_MATCH"
+      },
+      {
+        "year": 2018,
+        "prod_hazard_days": 117.0,
+        "indep_hazard_days": 117,
+        "hazard_days_diff": 0.0,
+        "prod_event_count": 2,
+        "indep_event_count": 2,
+        "event_count_diff": 0,
+        "coverage_pct": 100.0,
+        "mean_deficit_ratio": 0.779,
+        "max_deficit_ratio": 0.986,
+        "status": "EXACT_MATCH"
+      },
+      {
+        "year": 2019,
+        "prod_hazard_days": 115.0,
+        "indep_hazard_days": 115,
+        "hazard_days_diff": 0.0,
+        "prod_event_count": 1,
+        "indep_event_count": 1,
+        "event_count_diff": 0,
+        "coverage_pct": 100.0,
+        "mean_deficit_ratio": 0.912,
+        "max_deficit_ratio": 0.992,
+        "status": "EXACT_MATCH"
+      },
+      {
+        "year": 2020,
+        "prod_hazard_days": 52.0,
+        "indep_hazard_days": 52,
+        "hazard_days_diff": 0.0,
+        "prod_event_count": 2,
+        "indep_event_count": 2,
+        "event_count_diff": 0,
+        "coverage_pct": 100.0,
+        "mean_deficit_ratio": 0.846,
+        "max_deficit_ratio": 0.991,
+        "status": "EXACT_MATCH"
+      },
+      {
+        "year": 2021,
+        "prod_hazard_days": 0.0,
+        "indep_hazard_days": 0,
+        "hazard_days_diff": 0.0,
+        "prod_event_count": 0,
+        "indep_event_count": 0,
+        "event_count_diff": 0,
+        "coverage_pct": 100.0,
+        "mean_deficit_ratio": 0.0,
+        "max_deficit_ratio": 0.0,
+        "status": "EXACT_MATCH"
+      },
+      {
+        "year": 2022,
+        "prod_hazard_days": 36.0,
+        "indep_hazard_days": 36,
+        "hazard_days_diff": 0.0,
+        "prod_event_count": 1,
+        "indep_event_count": 1,
+        "event_count_diff": 0,
+        "coverage_pct": 100.0,
+        "mean_deficit_ratio": 0.905,
+        "max_deficit_ratio": 0.994,
+        "status": "EXACT_MATCH"
+      },
+      {
+        "year": 2023,
+        "prod_hazard_days": 75.0,
+        "indep_hazard_days": 75,
+        "hazard_days_diff": 0.0,
+        "prod_event_count": 2,
+        "indep_event_count": 2,
+        "event_count_diff": 0,
+        "coverage_pct": 100.0,
+        "mean_deficit_ratio": 0.84,
+        "max_deficit_ratio": 0.995,
+        "status": "EXACT_MATCH"
+      }
+    ]
+  },
+  "event_comparison_summary": {
+    "total_events_count": 15,
+    "events_records": [
+      {
+        "event_id": 1,
+        "prod_start_date": "2015-05-29",
+        "indep_start_date": "2015-05-29",
+        "prod_end_date": "2015-06-12",
+        "indep_end_date": "2015-06-12",
+        "prod_duration_days": 15,
+        "indep_duration_days": 15,
+        "duration_diff": 0,
+        "prod_mean_ratio": 0.86,
+        "indep_mean_ratio": 0.86,
+        "prod_max_ratio": 0.972,
+        "indep_max_ratio": 0.972,
+        "cross_year_boundary": "NO",
+        "status": "EXACT_MATCH"
+      },
+      {
+        "event_id": 2,
+        "prod_start_date": "2015-09-17",
+        "indep_start_date": "2015-09-17",
+        "prod_end_date": "2015-12-26",
+        "indep_end_date": "2015-12-26",
+        "prod_duration_days": 101,
+        "indep_duration_days": 101,
+        "duration_diff": 0,
+        "prod_mean_ratio": 0.601,
+        "indep_mean_ratio": 0.601,
+        "prod_max_ratio": 0.696,
+        "indep_max_ratio": 0.696,
+        "cross_year_boundary": "NO",
+        "status": "EXACT_MATCH"
+      },
+      {
+        "event_id": 3,
+        "prod_start_date": "2016-01-01",
+        "indep_start_date": "2016-01-01",
+        "prod_end_date": "2016-01-25",
+        "indep_end_date": "2016-01-25",
+        "prod_duration_days": 25,
+        "indep_duration_days": 25,
+        "duration_diff": 0,
+        "prod_mean_ratio": 0.718,
+        "indep_mean_ratio": 0.718,
+        "prod_max_ratio": 0.826,
+        "indep_max_ratio": 0.826,
+        "cross_year_boundary": "NO",
+        "status": "EXACT_MATCH"
+      },
+      {
+        "event_id": 4,
+        "prod_start_date": "2016-02-19",
+        "indep_start_date": "2016-02-19",
+        "prod_end_date": "2016-03-03",
+        "indep_end_date": "2016-03-03",
+        "prod_duration_days": 14,
+        "indep_duration_days": 14,
+        "duration_diff": 0,
+        "prod_mean_ratio": 0.94,
+        "indep_mean_ratio": 0.94,
+        "prod_max_ratio": 1.0,
+        "indep_max_ratio": 1.0,
+        "cross_year_boundary": "NO",
+        "status": "EXACT_MATCH"
+      },
+      {
+        "event_id": 5,
+        "prod_start_date": "2016-05-06",
+        "indep_start_date": "2016-05-06",
+        "prod_end_date": "2016-06-20",
+        "indep_end_date": "2016-06-20",
+        "prod_duration_days": 46,
+        "indep_duration_days": 46,
+        "duration_diff": 0,
+        "prod_mean_ratio": 0.811,
+        "indep_mean_ratio": 0.811,
+        "prod_max_ratio": 0.967,
+        "indep_max_ratio": 0.967,
+        "cross_year_boundary": "NO",
+        "status": "EXACT_MATCH"
+      },
+      {
+        "event_id": 6,
+        "prod_start_date": "2016-12-31",
+        "indep_start_date": "2016-12-31",
+        "prod_end_date": "2017-03-04",
+        "indep_end_date": "2017-03-04",
+        "prod_duration_days": 64,
+        "indep_duration_days": 64,
+        "duration_diff": 0,
+        "prod_mean_ratio": 0.991,
+        "indep_mean_ratio": 0.991,
+        "prod_max_ratio": 1.0,
+        "indep_max_ratio": 1.0,
+        "cross_year_boundary": "YES",
+        "status": "EXACT_MATCH"
+      },
+      {
+        "event_id": 7,
+        "prod_start_date": "2017-05-07",
+        "indep_start_date": "2017-05-07",
+        "prod_end_date": "2017-05-29",
+        "indep_end_date": "2017-05-29",
+        "prod_duration_days": 23,
+        "indep_duration_days": 23,
+        "duration_diff": 0,
+        "prod_mean_ratio": 0.953,
+        "indep_mean_ratio": 0.953,
+        "prod_max_ratio": 0.994,
+        "indep_max_ratio": 0.994,
+        "cross_year_boundary": "NO",
+        "status": "EXACT_MATCH"
+      },
+      {
+        "event_id": 8,
+        "prod_start_date": "2018-05-07",
+        "indep_start_date": "2018-05-07",
+        "prod_end_date": "2018-06-06",
+        "indep_end_date": "2018-06-06",
+        "prod_duration_days": 31,
+        "indep_duration_days": 31,
+        "duration_diff": 0,
+        "prod_mean_ratio": 0.905,
+        "indep_mean_ratio": 0.905,
+        "prod_max_ratio": 0.986,
+        "indep_max_ratio": 0.986,
+        "cross_year_boundary": "NO",
+        "status": "EXACT_MATCH"
+      },
+      {
+        "event_id": 9,
+        "prod_start_date": "2018-10-07",
+        "indep_start_date": "2018-10-07",
+        "prod_end_date": "2019-03-04",
+        "indep_end_date": "2019-03-04",
+        "prod_duration_days": 149,
+        "indep_duration_days": 149,
+        "duration_diff": 0,
+        "prod_mean_ratio": 0.833,
+        "indep_mean_ratio": 0.833,
+        "prod_max_ratio": 0.992,
+        "indep_max_ratio": 0.992,
+        "cross_year_boundary": "YES",
+        "status": "EXACT_MATCH"
+      },
+      {
+        "event_id": 10,
+        "prod_start_date": "2019-05-07",
+        "indep_start_date": "2019-05-07",
+        "prod_end_date": "2019-06-27",
+        "indep_end_date": "2019-06-27",
+        "prod_duration_days": 52,
+        "indep_duration_days": 52,
+        "duration_diff": 0,
+        "prod_mean_ratio": 0.843,
+        "indep_mean_ratio": 0.843,
+        "prod_max_ratio": 0.974,
+        "indep_max_ratio": 0.974,
+        "cross_year_boundary": "NO",
+        "status": "EXACT_MATCH"
+      },
+      {
+        "event_id": 11,
+        "prod_start_date": "2020-02-05",
+        "indep_start_date": "2020-02-05",
+        "prod_end_date": "2020-02-28",
+        "indep_end_date": "2020-02-28",
+        "prod_duration_days": 24,
+        "indep_duration_days": 24,
+        "duration_diff": 0,
+        "prod_mean_ratio": 0.728,
+        "indep_mean_ratio": 0.728,
+        "prod_max_ratio": 0.755,
+        "indep_max_ratio": 0.755,
+        "cross_year_boundary": "NO",
+        "status": "EXACT_MATCH"
+      },
+      {
+        "event_id": 12,
+        "prod_start_date": "2020-05-06",
+        "indep_start_date": "2020-05-06",
+        "prod_end_date": "2020-06-02",
+        "indep_end_date": "2020-06-02",
+        "prod_duration_days": 28,
+        "indep_duration_days": 28,
+        "duration_diff": 0,
+        "prod_mean_ratio": 0.946,
+        "indep_mean_ratio": 0.946,
+        "prod_max_ratio": 0.991,
+        "indep_max_ratio": 0.991,
+        "cross_year_boundary": "NO",
+        "status": "EXACT_MATCH"
+      },
+      {
+        "event_id": 13,
+        "prod_start_date": "2022-05-07",
+        "indep_start_date": "2022-05-07",
+        "prod_end_date": "2022-06-11",
+        "indep_end_date": "2022-06-11",
+        "prod_duration_days": 36,
+        "indep_duration_days": 36,
+        "duration_diff": 0,
+        "prod_mean_ratio": 0.905,
+        "indep_mean_ratio": 0.905,
+        "prod_max_ratio": 0.994,
+        "indep_max_ratio": 0.994,
+        "cross_year_boundary": "NO",
+        "status": "EXACT_MATCH"
+      },
+      {
+        "event_id": 14,
+        "prod_start_date": "2023-01-12",
+        "indep_start_date": "2023-01-12",
+        "prod_end_date": "2023-03-04",
+        "indep_end_date": "2023-03-04",
+        "prod_duration_days": 52,
+        "indep_duration_days": 52,
+        "duration_diff": 0,
+        "prod_mean_ratio": 0.926,
+        "indep_mean_ratio": 0.926,
+        "prod_max_ratio": 0.995,
+        "indep_max_ratio": 0.995,
+        "cross_year_boundary": "NO",
+        "status": "EXACT_MATCH"
+      },
+      {
+        "event_id": 15,
+        "prod_start_date": "2023-06-05",
+        "indep_start_date": "2023-06-05",
+        "prod_end_date": "2023-06-27",
+        "indep_end_date": "2023-06-27",
+        "prod_duration_days": 23,
+        "indep_duration_days": 23,
+        "duration_diff": 0,
+        "prod_mean_ratio": 0.645,
+        "indep_mean_ratio": 0.645,
+        "prod_max_ratio": 0.741,
+        "indep_max_ratio": 0.741,
+        "cross_year_boundary": "NO",
+        "status": "EXACT_MATCH"
+      }
+    ]
+  },
+  "findings_taxonomy": {
+    "independently_verified": [
+      "90-day rolling accumulation algorithm on valid window slices.",
+      "Day-of-year expected climatological baseline norm calculation.",
+      "Daily deficit ratio clamping to [0.0, 1.0] and hyper-arid guard (exp < 5.0 mm).",
+      "14-day minimum consecutive deficit streak detection and filtering (74 deficit days correctly discarded).",
+      "Exact annual drought day counts: 2015 (116), 2016 (86), 2017 (86), 2018 (117), 2019 (115), 2020 (52), 2021 (0), 2022 (36), 2023 (75).",
+      "Exact 15 drought events start/end dates, durations, and intensity metrics.",
+      "OLS regression slope (-9.1833), R\u00b2 (0.3906), p-value (0.07192).",
+      "Mann-Kendall test with tie correction, continuity correction, tau (-0.4789), p-value (0.09349), Sen's slope (-8.45).",
+      "Window comparison early mean (96.0), late mean (37.0), absolute change (-59.0), relative change (-61.5%).",
+      "Non-significance conclusion: p >= 0.05 correctly resulting in is_statistically_significant = False and trend_direction = 'no_significant_trend'."
+    ],
+    "internally_consistent_but_not_independently_verified": [
+      "Grid cell elevation (6.0m) reported by Open-Meteo metadata.",
+      "Upstream Open-Meteo precipitation accuracy against primary ground gauges (e.g. IMD Santacruz/Colaba)."
+    ],
+    "incorrect_or_inconsistent": [
+      "UI displays 'Operational Percentile Threshold (90th percentile)' for drought hazard, but backend hardcodes deficit_threshold = 0.50 (50% deficit ratio) in AnalysisService._run_domain_hazard, completely ignoring the requested percentile value.",
+      "Cache key generation hashes request.percentile, creating redundant duplicate cache entries for varying percentiles that yield identical drought results.",
+      "Backend returns threshold_percentile = 50.0 (from deficit_threshold * 100), creating a jarring visual contradiction between UI control (90th) and results badge (50th %ile / 0.5 deficit_ratio)."
+    ],
+    "unable_to_verify": [
+      "Real-time sensor telemetry or unadjusted raw telemetry prior to ECMWF ERA5 assimilation."
+    ]
+  }
+}

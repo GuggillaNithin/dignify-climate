@@ -1,0 +1,449 @@
+{
+  "analysis_id": "227a64e1-d34f-40b8-96e4-1ba23987e94e",
+  "mode": "point",
+  "hazard_type": "heatwave",
+  "spatial_metadata": {
+    "mode": "point",
+    "representation_text": "Single coordinate represents the nearest ~11 km ERA5 model grid cell (19.08\u00b0, 72.88\u00b0). This reflects local atmospheric reanalysis for that cell and is not an interpolated municipal average.",
+    "sample_count": 1,
+    "area_weighting_method": "Single cell (weight 1.0)",
+    "bounds": null,
+    "point": {
+      "latitude": 19.076,
+      "longitude": 72.8777
+    },
+    "resolution": "~0.1\u00b0 (~11 km) ERA5 grid cell"
+  },
+  "sampled_points": [
+    {
+      "latitude": 19.076,
+      "longitude": 72.8777,
+      "grid_key": "19.08_72.88",
+      "cosine_weight": 1.0,
+      "normalized_weight": 1.0
+    }
+  ],
+  "annual_series": [
+    {
+      "year": 2015,
+      "is_available": true,
+      "spatial_coverage_pct": 100.0,
+      "valid_points_count": 1,
+      "total_points_count": 1,
+      "weighted_hazard_days": 0.0,
+      "weighted_event_count": 0.0,
+      "weighted_primary_metric": 0.0,
+      "weighted_intensity": 0.0,
+      "coverage_status": "Single point observation",
+      "point_contributions": [
+        {
+          "grid_key": "19.08_72.88",
+          "latitude": 19.076,
+          "longitude": 72.8777,
+          "weight": 1.0,
+          "hazard_days": 0,
+          "event_count": 0,
+          "primary_metric": 0,
+          "is_valid": true
+        }
+      ]
+    },
+    {
+      "year": 2016,
+      "is_available": true,
+      "spatial_coverage_pct": 100.0,
+      "valid_points_count": 1,
+      "total_points_count": 1,
+      "weighted_hazard_days": 0.0,
+      "weighted_event_count": 0.0,
+      "weighted_primary_metric": 0.0,
+      "weighted_intensity": 0.0,
+      "coverage_status": "Single point observation",
+      "point_contributions": [
+        {
+          "grid_key": "19.08_72.88",
+          "latitude": 19.076,
+          "longitude": 72.8777,
+          "weight": 1.0,
+          "hazard_days": 0,
+          "event_count": 0,
+          "primary_metric": 0,
+          "is_valid": true
+        }
+      ]
+    },
+    {
+      "year": 2017,
+      "is_available": true,
+      "spatial_coverage_pct": 100.0,
+      "valid_points_count": 1,
+      "total_points_count": 1,
+      "weighted_hazard_days": 0.0,
+      "weighted_event_count": 0.0,
+      "weighted_primary_metric": 0.0,
+      "weighted_intensity": 0.0,
+      "coverage_status": "Single point observation",
+      "point_contributions": [
+        {
+          "grid_key": "19.08_72.88",
+          "latitude": 19.076,
+          "longitude": 72.8777,
+          "weight": 1.0,
+          "hazard_days": 0,
+          "event_count": 0,
+          "primary_metric": 0,
+          "is_valid": true
+        }
+      ]
+    },
+    {
+      "year": 2018,
+      "is_available": true,
+      "spatial_coverage_pct": 100.0,
+      "valid_points_count": 1,
+      "total_points_count": 1,
+      "weighted_hazard_days": 0.0,
+      "weighted_event_count": 0.0,
+      "weighted_primary_metric": 0.0,
+      "weighted_intensity": 0.0,
+      "coverage_status": "Single point observation",
+      "point_contributions": [
+        {
+          "grid_key": "19.08_72.88",
+          "latitude": 19.076,
+          "longitude": 72.8777,
+          "weight": 1.0,
+          "hazard_days": 0,
+          "event_count": 0,
+          "primary_metric": 0,
+          "is_valid": true
+        }
+      ]
+    },
+    {
+      "year": 2019,
+      "is_available": true,
+      "spatial_coverage_pct": 100.0,
+      "valid_points_count": 1,
+      "total_points_count": 1,
+      "weighted_hazard_days": 0.0,
+      "weighted_event_count": 0.0,
+      "weighted_primary_metric": 0.0,
+      "weighted_intensity": 0.0,
+      "coverage_status": "Single point observation",
+      "point_contributions": [
+        {
+          "grid_key": "19.08_72.88",
+          "latitude": 19.076,
+          "longitude": 72.8777,
+          "weight": 1.0,
+          "hazard_days": 0,
+          "event_count": 0,
+          "primary_metric": 0,
+          "is_valid": true
+        }
+      ]
+    },
+    {
+      "year": 2020,
+      "is_available": true,
+      "spatial_coverage_pct": 100.0,
+      "valid_points_count": 1,
+      "total_points_count": 1,
+      "weighted_hazard_days": 0.0,
+      "weighted_event_count": 0.0,
+      "weighted_primary_metric": 0.0,
+      "weighted_intensity": 0.0,
+      "coverage_status": "Single point observation",
+      "point_contributions": [
+        {
+          "grid_key": "19.08_72.88",
+          "latitude": 19.076,
+          "longitude": 72.8777,
+          "weight": 1.0,
+          "hazard_days": 0,
+          "event_count": 0,
+          "primary_metric": 0,
+          "is_valid": true
+        }
+      ]
+    },
+    {
+      "year": 2021,
+      "is_available": true,
+      "spatial_coverage_pct": 100.0,
+      "valid_points_count": 1,
+      "total_points_count": 1,
+      "weighted_hazard_days": 6.0,
+      "weighted_event_count": 2.0,
+      "weighted_primary_metric": 6.0,
+      "weighted_intensity": 6.8,
+      "coverage_status": "Single point observation",
+      "point_contributions": [
+        {
+          "grid_key": "19.08_72.88",
+          "latitude": 19.076,
+          "longitude": 72.8777,
+          "weight": 1.0,
+          "hazard_days": 6,
+          "event_count": 2,
+          "primary_metric": 6,
+          "is_valid": true
+        }
+      ]
+    },
+    {
+      "year": 2022,
+      "is_available": true,
+      "spatial_coverage_pct": 100.0,
+      "valid_points_count": 1,
+      "total_points_count": 1,
+      "weighted_hazard_days": 3.0,
+      "weighted_event_count": 1.0,
+      "weighted_primary_metric": 3.0,
+      "weighted_intensity": 3.9,
+      "coverage_status": "Single point observation",
+      "point_contributions": [
+        {
+          "grid_key": "19.08_72.88",
+          "latitude": 19.076,
+          "longitude": 72.8777,
+          "weight": 1.0,
+          "hazard_days": 3,
+          "event_count": 1,
+          "primary_metric": 3,
+          "is_valid": true
+        }
+      ]
+    },
+    {
+      "year": 2023,
+      "is_available": true,
+      "spatial_coverage_pct": 100.0,
+      "valid_points_count": 1,
+      "total_points_count": 1,
+      "weighted_hazard_days": 4.0,
+      "weighted_event_count": 1.0,
+      "weighted_primary_metric": 4.0,
+      "weighted_intensity": 4.5,
+      "coverage_status": "Single point observation",
+      "point_contributions": [
+        {
+          "grid_key": "19.08_72.88",
+          "latitude": 19.076,
+          "longitude": 72.8777,
+          "weight": 1.0,
+          "hazard_days": 4,
+          "event_count": 1,
+          "primary_metric": 4,
+          "is_valid": true
+        }
+      ]
+    }
+  ],
+  "point_results": [
+    {
+      "grid_key": "19.08_72.88",
+      "latitude": 19.076,
+      "longitude": 72.8777,
+      "events_count": 4,
+      "threshold_value": 36.0,
+      "threshold_unit": "\u00b0C",
+      "baseline": "Exploratory threshold computed over full 2015\u20132023 observation period (3287 valid days)"
+    }
+  ],
+  "trends": {
+    "is_calculated": true,
+    "diagnostic_message": null,
+    "total_years": 9,
+    "valid_years_count": 9,
+    "excluded_years": [],
+    "primary_metric_name": "Annual Heatwave Days",
+    "metric_units": "days",
+    "ols_regression": {
+      "slope_per_year": 0.6167,
+      "intercept": -1243.6056,
+      "r_squared": 0.5404,
+      "p_value": 0.02403,
+      "stderr": 0.215,
+      "confidence_interval_95": [
+        0.1083,
+        1.1251
+      ],
+      "sample_count": 9,
+      "fitted_values": [
+        {
+          "year": 2015.0,
+          "fitted": -0.96
+        },
+        {
+          "year": 2016.0,
+          "fitted": -0.34
+        },
+        {
+          "year": 2017.0,
+          "fitted": 0.28
+        },
+        {
+          "year": 2018.0,
+          "fitted": 0.89
+        },
+        {
+          "year": 2019.0,
+          "fitted": 1.51
+        },
+        {
+          "year": 2020.0,
+          "fitted": 2.13
+        },
+        {
+          "year": 2021.0,
+          "fitted": 2.75
+        },
+        {
+          "year": 2022.0,
+          "fitted": 3.36
+        },
+        {
+          "year": 2023.0,
+          "fitted": 3.98
+        }
+      ]
+    },
+    "mann_kendall": {
+      "tau": 0.6183,
+      "s_statistic": 17,
+      "variance_s": 63.67,
+      "z_statistic": 2.0052,
+      "p_value": 0.04494,
+      "sens_slope": 0.4643,
+      "sample_size": 9,
+      "tied_groups_count": 1
+    },
+    "window_comparison": {
+      "early_window_years": [
+        2015,
+        2016,
+        2017
+      ],
+      "early_window_mean": 0.0,
+      "late_window_years": [
+        2021,
+        2022,
+        2023
+      ],
+      "late_window_mean": 4.33,
+      "absolute_change": 4.33,
+      "percentage_change": null,
+      "percentage_change_status": "Early baseline window mean is 0.0; percentage change is mathematically undefined (division by zero)."
+    },
+    "rolling_series": [
+      {
+        "year": 2015,
+        "observed_value": 0.0,
+        "rolling_mean": 0.0,
+        "is_valid": true
+      },
+      {
+        "year": 2016,
+        "observed_value": 0.0,
+        "rolling_mean": 0.0,
+        "is_valid": true
+      },
+      {
+        "year": 2017,
+        "observed_value": 0.0,
+        "rolling_mean": 0.0,
+        "is_valid": true
+      },
+      {
+        "year": 2018,
+        "observed_value": 0.0,
+        "rolling_mean": 0.0,
+        "is_valid": true
+      },
+      {
+        "year": 2019,
+        "observed_value": 0.0,
+        "rolling_mean": 0.0,
+        "is_valid": true
+      },
+      {
+        "year": 2020,
+        "observed_value": 0.0,
+        "rolling_mean": 2.0,
+        "is_valid": true
+      },
+      {
+        "year": 2021,
+        "observed_value": 6.0,
+        "rolling_mean": 3.0,
+        "is_valid": true
+      },
+      {
+        "year": 2022,
+        "observed_value": 3.0,
+        "rolling_mean": 4.33,
+        "is_valid": true
+      },
+      {
+        "year": 2023,
+        "observed_value": 4.0,
+        "rolling_mean": 3.5,
+        "is_valid": true
+      }
+    ],
+    "trend_direction": "increasing",
+    "is_statistically_significant": true,
+    "magnitude_summary": "+0.62 days/yr (+6.2 days/decade)",
+    "scientific_caution": "Statistical trend correlation indicates empirical historical direction over the selected window. It does not establish physical or anthropogenic causation. Serial autocorrelation (e.g. multi-year climate cycles) and multiple hypothesis testing may affect nominal p-values.",
+    "methodology_version": "v1.2-scientific"
+  },
+  "events_list": [
+    {
+      "start_date": "2021-03-03",
+      "end_date": "2021-03-05",
+      "duration_days": 3,
+      "mean_value": 36.43,
+      "max_value": 36.6,
+      "intensity_metric": 1.3
+    },
+    {
+      "start_date": "2021-03-25",
+      "end_date": "2021-03-27",
+      "duration_days": 3,
+      "mean_value": 37.83,
+      "max_value": 38.6,
+      "intensity_metric": 5.5
+    },
+    {
+      "start_date": "2022-04-21",
+      "end_date": "2022-04-23",
+      "duration_days": 3,
+      "mean_value": 37.3,
+      "max_value": 38.4,
+      "intensity_metric": 3.9
+    },
+    {
+      "start_date": "2023-03-11",
+      "end_date": "2023-03-14",
+      "duration_days": 4,
+      "mean_value": 37.12,
+      "max_value": 37.7,
+      "intensity_metric": 4.5
+    }
+  ],
+  "definitions_summary": {
+    "hazard": "Heatwave",
+    "threshold_definition": "Daily maximum 2m air temperature strictly > 99.0th percentile (36.0 \u00b0C)",
+    "consecutive_run_rule": "At least 3 consecutive valid days above threshold",
+    "missing_data_policy": "Missing dates and non-finite values break event runs immediately. Gaps are never bridged.",
+    "baseline_used": "Exploratory threshold computed over full 2015\u20132023 observation period (3287 valid days)",
+    "units": {
+      "temperature": "\u00b0C",
+      "intensity": "Cumulative degree-days exceedance (\u00b0C)",
+      "duration": "Days"
+    }
+  },
+  "created_at": "2026-10-12T15:53:21.523950+00:00"
+}

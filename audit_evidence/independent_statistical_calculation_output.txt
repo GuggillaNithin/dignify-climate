@@ -1,0 +1,44 @@
+Dygnify - INDEPENDENT STATISTICAL CALCULATION AUDIT LOG
+Target: Mumbai ERA5 (19.08° N, 72.88° E)
+Hazard: Heatwave (Percentile: 99.0, Threshold: 36.00 °C, Duration: >= 3 days)
+Observation Period: 2015-01-01 through 2023-12-31 (N = 9 years)
+Annual Series Input (Heatwave Days): [0, 0, 0, 0, 0, 0, 6, 3, 4]
+
+1. ORDINARY LEAST-SQUARES (OLS) REGRESSION:
+   - Sample Size (N): 9
+   - Degrees of Freedom (df = N - 2): 7
+   - Sum of Squares XX (SS_xx): 60.0000
+   - Sum of Squares YY (SS_yy): 42.2222
+   - Sum of Squares XY (SS_xy): 37.0000
+   - OLS Slope: 0.616667 days/year (reported: +0.6167)
+   - OLS Intercept: -1243.605556 (reported: -1243.6056)
+   - Coefficient of Determination (R²): 0.540395 (reported: 0.5404)
+   - Standard Error of Slope (SE): 0.214950 (reported: 0.2150)
+   - t-statistic: 2.868878
+   - Two-Sided p-value: 0.024031 (reported: 0.02403)
+   - Critical t (alpha=0.05, df=7): 2.364624
+   - 95% Confidence Interval (Raw): [0.1084, 1.1249]
+   - 95% Confidence Interval (Pre-rounded Slope & SE): [0.1083, 1.1251] (reported: [0.1083, 1.1251])
+
+2. MANN-KENDALL MONOTONIC RANK TEST:
+   - Sample Size (N): 9
+   - Total Pairwise Comparisons: 36
+   - Kendall S Statistic: 17 (reported: 17)
+   - Tied Groups: 1 tied group of size 6 (six consecutive zero years 2015-2020)
+   - Tie Correction Term (sum t*(t-1)*(2t+5)): 510
+   - Tie-Corrected Variance of S: 63.666667 (reported: 63.67)
+   - Standard Error of S (sqrt(Var)): 7.979139
+   - Continuity-Corrected Z: 2.005229 (reported: 2.0052)
+   - Two-Sided p-value (Normal Approx): 0.044939 (reported: 0.04494)
+   - Kendall's Tau-b: 0.618284 (reported: +0.6183)
+
+3. THEIL-SEN ESTIMATOR (SEN'S SLOPE):
+   - Total Pairwise Slopes Evaluated: 36
+   - Median of Pairwise Slopes: 0.464286 days/year (reported: +0.4643)
+
+4. MULTI-YEAR COMPARISON WINDOWS:
+   - Window Length (k = min(5, max(2, N//3))): 3 years
+   - Early Baseline Window (2015-2017) Mean: 0.0000 days (reported: 0.0)
+   - Recent Analysis Window (2021-2023) Mean: 4.3333 days (reported: 4.333)
+   - Absolute Difference: +4.3333 days (reported: +4.333)
+   - Percentage Change: WITHHELD (Early baseline mean is 0.0; relative percentage change is mathematically undefined).
