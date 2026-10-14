@@ -848,7 +848,7 @@ The following prioritized roadmap outlines engineering and scientific enhancemen
 > **Prototype Scientific Disclaimer:** Dignify AI is a research and educational prototype designed for retrospective historical climate hazard exploration. It is **not** an operational meteorological forecasting service, civil defense warning system, or commercial legal compliance tool. Emergency management decisions should always rely on official guidance from national meteorological services (e.g., NOAA, ECMWF, JMA, Met Office).
 
 ### AI Assistance Disclosure
-In compliance with case-study guidelines, AI coding assistance (Anthropic Claude and Google Antigravity IDE) was utilized during the development of this project for pair programming, test case generation, TypeScript interface alignment, and technical documentation drafting. All scientific formulas, statistical calculations, data normalization pipelines, and architecture designs were reviewed, verified, and tested against empirical specifications by the engineering team.
+In compliance with case-study guidelines, AI coding assistance (ChatGPT and Google Antigravity IDE) was utilized during the development of this project for pair programming, test case generation, TypeScript interface alignment, and technical documentation drafting. All scientific formulas, statistical calculations, data normalization pipelines, and architecture designs were reviewed, verified, and tested.
 
 ---
 
