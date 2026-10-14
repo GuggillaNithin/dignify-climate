@@ -23,20 +23,26 @@ import {
   CartesianGrid,
   Tooltip,
 } from 'recharts';
+import { D3HazardTrendChart } from './D3HazardTrendChart';
 import type { TrendAnalysisResult, HazardEventItem, HazardDefinitionsSummary } from '../types/api';
 
 interface TrendAnalysisViewProps {
   trendData?: TrendAnalysisResult | null;
   eventsList?: HazardEventItem[] | null;
   definitionsSummary?: HazardDefinitionsSummary | null;
+  selectedYear?: number | null;
+  onYearSelect?: (year: number) => void;
 }
 
 export const TrendAnalysisView: React.FC<TrendAnalysisViewProps> = ({
   trendData,
   eventsList,
   definitionsSummary,
+  selectedYear,
+  onYearSelect,
 }) => {
   const [showMethodologyDetails, setShowMethodologyDetails] = useState<boolean>(false);
+  const [chartEngine, setChartEngine] = useState<'d3' | 'recharts'>('d3');
 
   if (!trendData) {
     return (
@@ -78,7 +84,7 @@ export const TrendAnalysisView: React.FC<TrendAnalysisViewProps> = ({
   const chartData = rolling_series.map((pt) => ({
     year: pt.year,
     observed: pt.is_valid ? pt.observed_value : null,
-    fitted: fittedMap.has(pt.year) ? fittedMap.get(pt.year) : null,
+    fitted: fittedMap.has(pt.year) ? (fittedMap.get(pt.year) ?? null) : null,
     rolling: pt.rolling_mean,
     isValid: pt.is_valid,
   }));
@@ -288,9 +294,9 @@ export const TrendAnalysisView: React.FC<TrendAnalysisViewProps> = ({
         )}
       </div>
 
-      {/* Recharts Visualizations: Observed Points vs OLS Fitted Line vs Rolling Average */}
+      {/* Visualizations: D3 Interactive SVG (Default) or Recharts */}
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
             <h3 className="text-sm font-bold text-slate-100 uppercase tracking-wider flex items-center gap-2">
               <Calendar className="w-4 h-4 text-cyan-400" />
@@ -301,24 +307,57 @@ export const TrendAnalysisView: React.FC<TrendAnalysisViewProps> = ({
             </span>
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-mono">
-            <span className="flex items-center gap-1.5 text-orange-400">
-              <span className="w-3 h-3 rounded-sm bg-orange-500/60 inline-block border border-orange-400" />
-              Observed Annual
-            </span>
-            <span className="flex items-center gap-1.5 text-amber-300">
-              <span className="w-4 h-0.5 border-t-2 border-dashed border-amber-300 inline-block" />
-              OLS Fit
-            </span>
-            <span className="flex items-center gap-1.5 text-cyan-400">
-              <span className="w-4 h-0.5 bg-cyan-400 inline-block" />
-              3-Yr Rolling
-            </span>
+          <div className="flex items-center gap-2">
+            {/* Chart Engine Switcher: D3 Interactive SVG vs Recharts */}
+            <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
+              <button
+                type="button"
+                onClick={() => setChartEngine('d3')}
+                className={`px-2.5 py-1 rounded text-xs font-mono font-semibold transition ${
+                  chartEngine === 'd3'
+                    ? 'bg-teal-700 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+                title="D3.js SVG analytical visualization with scales, gradients, and interactive tooltips"
+              >
+                D3 Interactive SVG
+              </button>
+              <button
+                type="button"
+                onClick={() => setChartEngine('recharts')}
+                className={`px-2.5 py-1 rounded text-xs font-mono font-semibold transition ${
+                  chartEngine === 'recharts'
+                    ? 'bg-teal-700 text-white shadow-xs'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+                title="Recharts standard container"
+              >
+                Recharts View
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Responsive Recharts Container */}
-        <div className="h-72 w-full pt-2">
+        {/* Primary D3.js Analytical SVG Chart */}
+        {chartEngine === 'd3' ? (
+          <D3HazardTrendChart
+            data={chartData}
+            metricName={primary_metric_name}
+            metricUnits={metric_units}
+            olsSlope={ols_regression?.slope_per_year}
+            olsPValue={ols_regression?.p_value}
+            selectedYear={selectedYear}
+            onYearSelect={onYearSelect}
+            thresholdValue={definitionsSummary?.threshold_value}
+            thresholdLabel={
+              definitionsSummary?.threshold_value !== undefined
+                ? `Threshold: ${definitionsSummary.threshold_value} ${definitionsSummary.threshold_unit || metric_units}`
+                : undefined
+            }
+          />
+        ) : (
+          /* Recharts Fallback Container */
+          <div className="h-72 w-full pt-2">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={chartData} margin={{ top: 10, right: 20, bottom: 20, left: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
@@ -404,6 +443,7 @@ export const TrendAnalysisView: React.FC<TrendAnalysisViewProps> = ({
             </ComposedChart>
           </ResponsiveContainer>
         </div>
+      )}
 
         {/* Statistical Parameters Legend Table */}
         {ols_regression && mann_kendall && (

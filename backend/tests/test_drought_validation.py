@@ -22,54 +22,68 @@ from app.services.analysis_service import AnalysisService, analysis_service
 
 
 def test_drought_percentile_insensitivity_and_deficit_isolation():
-    """Confirmed Defect Test: The backend ignores requested percentile for drought."""
-    # Build synthetic 100-day series
+    """Verify drought proxy detection correctly derives deficit threshold from configured parameter."""
     raw_precip = [(f"2020-01-{i+1:02d}", 0.0) if i < 31 else (f"2020-02-{i-30:02d}", 0.0) for i in range(60)]
-    # Add another 40 days
     raw_precip += [(f"2020-03-{i+1:02d}", 0.0) for i in range(31)]
     raw_precip += [(f"2020-04-{i+1:02d}", 0.0) for i in range(9)]
-
-    # AnalysisRequest with percentile 90 vs 99
-    req_90 = AnalysisRequest(
-        mode="point",
-        point=PointSchema(latitude=19.076, longitude=72.8777),
-        hazard_type="drought",
-        start_date="2015-01-01",
-        end_date="2023-12-31",
-        percentile=90.0,
-        min_consecutive_days=14,
-    )
-    req_99 = AnalysisRequest(
-        mode="point",
-        point=PointSchema(latitude=19.076, longitude=72.8777),
-        hazard_type="drought",
-        start_date="2015-01-01",
-        end_date="2023-12-31",
-        percentile=99.0,
-        min_consecutive_days=14,
-    )
-
-    # 1. Defect Confirmation: Cache keys differ due to unused percentile parameter
-    key_90 = analysis_service.compute_cache_key(req_90)
-    key_99 = analysis_service.compute_cache_key(req_99)
-    assert key_90 != key_99, "Cache keys should differ when percentile differs"
-
-    # 2. Defect Confirmation: AnalysisService._run_domain_hazard hardcodes deficit_threshold=0.50
-    # Both 90 and 99 produce identical HazardAnalysisResult with threshold_percentile=50.0
-    res_90 = analysis_service._run_domain_hazard(
-        hazard_type="drought",
-        daily_observations=[],
-        percentile=90.0,
-        min_consecutive_days=14,
-        baseline_start_year=None,
-        baseline_end_year=None,
-    ) if False else None  # Tested via direct drought call below
 
     res_drought = detect_drought_proxy(raw_data=raw_precip, window_days=90, deficit_threshold=0.50, min_consecutive_days=14)
     assert res_drought.threshold_percentile == 50.0
     assert res_drought.threshold_value == 0.50
     assert res_drought.threshold_unit == "deficit_ratio"
     assert "90th" not in res_drought.definitions_summary["threshold_rule"]
+
+
+def test_drought_applied_parameter_matches_configuration():
+    """Regression Test: Fail if the configured/displayed parameter differs from the actual applied backend threshold."""
+    from app.schemas.weather import WeatherDailyObservation
+    from datetime import date, timedelta
+    start_d = date(2020, 1, 1)
+    daily_obs = [
+        WeatherDailyObservation(
+            date=(start_d + timedelta(days=i)).isoformat(),
+            temperature_max=30.0,
+            precipitation=10.0 if i < 60 else 0.0,
+        )
+        for i in range(120)
+    ]
+
+    # Test 50% deficit
+    res_50 = analysis_service._run_domain_hazard(
+        hazard_type="drought",
+        daily_observations=daily_obs,
+        percentile=50.0,
+        min_consecutive_days=14,
+        baseline_start_year=None,
+        baseline_end_year=None,
+    )
+    assert res_50.threshold_value == 0.50, "Configured 50% deficit must yield 0.50 threshold_value"
+    assert res_50.threshold_percentile == 50.0, "Configured 50% deficit must yield 50.0 threshold_percentile"
+    assert res_50.threshold_unit == "deficit_ratio"
+
+    # Test 40% deficit
+    res_40 = analysis_service._run_domain_hazard(
+        hazard_type="drought",
+        daily_observations=daily_obs,
+        percentile=40.0,
+        min_consecutive_days=14,
+        baseline_start_year=None,
+        baseline_end_year=None,
+    )
+    assert res_40.threshold_value == 0.40, "Configured 40% deficit must yield 0.40 threshold_value"
+    assert res_40.threshold_percentile == 40.0, "Configured 40% deficit must yield 40.0 threshold_percentile"
+
+    # Test 60% deficit
+    res_60 = analysis_service._run_domain_hazard(
+        hazard_type="drought",
+        daily_observations=daily_obs,
+        percentile=60.0,
+        min_consecutive_days=14,
+        baseline_start_year=None,
+        baseline_end_year=None,
+    )
+    assert res_60.threshold_value == 0.60, "Configured 60% deficit must yield 0.60 threshold_value"
+    assert res_60.threshold_percentile == 60.0, "Configured 60% deficit must yield 60.0 threshold_percentile"
 
 
 def test_rolling_window_boundary_incomplete_windows_are_none():

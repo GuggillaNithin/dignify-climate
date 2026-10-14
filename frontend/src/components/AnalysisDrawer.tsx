@@ -707,6 +707,8 @@ export const AnalysisDrawer: React.FC<AnalysisDrawerProps> = ({
               trendData={analysisResult.trends}
               eventsList={analysisResult.events_list}
               definitionsSummary={analysisResult.definitions_summary}
+              selectedYear={selectedYear}
+              onYearSelect={setSelectedYear}
             />
           </div>
         )}

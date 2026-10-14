@@ -319,6 +319,10 @@ export const DashboardShell = forwardRef<DashboardShellRef, DashboardShellProps>
     setMinConsecutiveDays(newConsecutive);
     setDraftMinConsecutiveDays(newConsecutive);
 
+    const newPercentile = newHazard === 'drought' ? 50 : 95;
+    setPercentileThreshold(newPercentile);
+    setDraftPercentile(newPercentile);
+
     setIsAnalyzing(true);
     setAnalysisError(null);
 
@@ -329,7 +333,7 @@ export const DashboardShell = forwardRef<DashboardShellRef, DashboardShellProps>
       hazard_type: newHazard,
       start_date: `${startYear}-01-01`,
       end_date: `${endYear}-12-31`,
-      percentile: percentileThreshold,
+      percentile: newPercentile,
       min_consecutive_days: newConsecutive,
       min_spatial_coverage_pct: minSpatialCoveragePct,
       sample_density: sampleDensity,
@@ -466,9 +470,16 @@ export const DashboardShell = forwardRef<DashboardShellRef, DashboardShellProps>
     draftHazard,
     onDraftHazardChange: (h: HazardType) => {
       setDraftHazard(h);
-      if (h === 'drought') setDraftMinConsecutiveDays(14);
-      else if (h === 'heavy_rainfall') setDraftMinConsecutiveDays(1);
-      else setDraftMinConsecutiveDays(3);
+      if (h === 'drought') {
+        setDraftMinConsecutiveDays(14);
+        setDraftPercentile(50);
+      } else if (h === 'heavy_rainfall') {
+        setDraftMinConsecutiveDays(1);
+        setDraftPercentile(95);
+      } else {
+        setDraftMinConsecutiveDays(3);
+        setDraftPercentile(95);
+      }
     },
     draftStartYear,
     onDraftStartYearChange: setDraftStartYear,
@@ -692,7 +703,16 @@ export const DashboardShell = forwardRef<DashboardShellRef, DashboardShellProps>
         minSpatialCoveragePct={minSpatialCoveragePct}
         sampleDensity={sampleDensity}
         onSpatialModeChange={setSpatialMode}
-        onHazardChange={setSelectedHazard}
+        onHazardChange={(h) => {
+          setSelectedHazard(h);
+          setDraftHazard(h);
+          const newConsecutive = h === 'drought' ? 14 : h === 'heavy_rainfall' ? 1 : 3;
+          const newPct = h === 'drought' ? 50 : 95;
+          setMinConsecutiveDays(newConsecutive);
+          setDraftMinConsecutiveDays(newConsecutive);
+          setPercentileThreshold(newPct);
+          setDraftPercentile(newPct);
+        }}
         onStartYearChange={setStartYear}
         onEndYearChange={setEndYear}
         onPercentileChange={setPercentileThreshold}

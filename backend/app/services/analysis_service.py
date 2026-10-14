@@ -468,10 +468,18 @@ class AnalysisService:
             )
         elif hazard_type == "drought":
             precip_series = [(obs.date, obs.precipitation) for obs in daily_observations]
+            # Map requested deficit threshold or percentile to deficit_threshold ratio
+            if percentile > 1.0:
+                deficit_th = percentile / 100.0
+            else:
+                deficit_th = percentile
+            # Sensible bounds between 0.10 and 0.90, default 0.50
+            if deficit_th < 0.10 or deficit_th > 0.90:
+                deficit_th = 0.50
             return detect_drought_proxy(
                 raw_data=precip_series,
                 window_days=90,
-                deficit_threshold=0.50,
+                deficit_threshold=round(deficit_th, 2),
                 min_consecutive_days=min_consecutive_days or 14,
                 baseline_start_year=baseline_start_year,
                 baseline_end_year=baseline_end_year,
